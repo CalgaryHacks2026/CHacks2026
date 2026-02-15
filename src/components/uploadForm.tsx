@@ -37,6 +37,42 @@ export default function UploadForm({
   const [tagInput, setTagInput] = React.useState("");
   const [description, setDescription] = React.useState("");
 
+  // Extract tag names from availableTags
+  const availableTagNames = React.useMemo(
+    () => availableTags?.map((t) => t.name) ?? [],
+    [availableTags]
+  );
+
+  const handleTagsChange = async (newTags: string[]) => {
+    // Find any new tags that don't exist in the database
+    for (const tag of newTags) {
+      const trimmed = tag.trim();
+      // Skip empty or whitespace-only tags
+      if (!trimmed) continue;
+
+      if (!availableTagNames.includes(tag)) {
+        // Create the tag in the database
+        await createTag({ name: tag });
+      }
+    }
+    // Filter out any empty/whitespace-only tags
+    setTags(newTags.filter((tag) => tag.trim().length > 0));
+  };
+
+  const handleCreateTag = async () => {
+    const trimmed = tagInput.trim().toLowerCase();
+    // Don't create empty or whitespace-only tags
+    if (!trimmed || trimmed.length === 0) return;
+
+    if (!tags.includes(trimmed)) {
+      if (!availableTagNames.includes(trimmed)) {
+        await createTag({ name: trimmed });
+      }
+      setTags([...tags, trimmed]);
+      setTagInput("");
+    }
+  };
+
   const handleAddTag = (tagText: string) => {
     const trimmed = tagText.trim().toLowerCase();
     if (trimmed && !tags.includes(trimmed)) {
@@ -119,25 +155,44 @@ export default function UploadForm({
               >
                 Tags
               </label>
-              <Combobox multiple value={tags} onValueChange={setTags}>
+              <Combobox
+                multiple
+                value={tags}
+                onValueChange={handleTagsChange}
+                inputValue={tagInput}
+                onInputValueChange={setTagInput}
+              >
                 <ComboboxChips>
                   <ComboboxValue>
                     {tags.map((item) => (
                       <ComboboxChip key={item}>{item}</ComboboxChip>
                     ))}
                   </ComboboxValue>
-                  <ComboboxChipsInput placeholder="Select tags" />
+                  <ComboboxChipsInput
+                    placeholder="Select tags"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && tagInput.trim().length > 0) {
+                        e.preventDefault();
+                        handleCreateTag();
+                      }
+                    }}
+                  />
                 </ComboboxChips>
                 <ComboboxContent>
-                  <ComboboxEmpty>
-                    Add {} as a tag
-                  </ComboboxEmpty>
+                  {tagInput.trim().length > 0 && (
+                    <ComboboxEmpty
+                      className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                      onClick={handleCreateTag}
+                    >
+                      Add &quot;{tagInput.trim().toLowerCase()}&quot; as a tag
+                    </ComboboxEmpty>
+                  )}
                   <ComboboxList>
-                    {(item) => (
+                    {availableTagNames.map((item) => (
                       <ComboboxItem key={item} value={item}>
                         {item}
                       </ComboboxItem>
-                    )}
+                    ))}
                   </ComboboxList>
                 </ComboboxContent>
               </Combobox>
