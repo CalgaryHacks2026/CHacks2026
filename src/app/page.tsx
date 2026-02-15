@@ -84,13 +84,6 @@ export default function Home() {
 
           {/* Suggested tags */}
         </div>
-
-        {posts?.map((post) => (
-          <div key={post._id} className="mt-8">
-            <p>Title: {post.title}</p>
-            <p>Description: {post.description}</p>
-          </div>
-        ))}
         {/*Section for loading posts area - Masonry Grid*/}
         <section className="mt-12 w-full max-w-6xl px-4">
           <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 group">
