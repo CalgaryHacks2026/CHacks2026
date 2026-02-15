@@ -162,25 +162,26 @@ export const postsByWeightedTagsFromHttp: ReturnType<typeof action> = action({  
     query: v.string(),
   },
   handler: async (ctx, args) => {
-    // const res = await fetch("https://your-secondary-server/tags");
-    // const tags = (await res.json()) as Record<string, number>;
-    // TODO: implement in relation to python ai server code
-    const tags = {
-      cars: 1.0,
-      trucks: 0.9,
-      "1970s": 0.8,
-      american: 0.7,
-      classic: 0.6,
-      "muscle car": 0.5,
-    } as Record<string, number>;
+      // const res = await fetch("https://your-secondary-server/tags");
+      // const tags = (await res.json()) as Record<string, number>;
+      // TODO: implement in relation to python ai server code
+      const tags = {
+        cars: 1.0,
+        trucks: 0.9,
+        "1970s": 0.8,
+        american: 0.7,
+        classic: 0.6,
+        "muscle car": 0.5,
+      } as Record<string, number>;
 
-    // Call the query from the action
-    const posts = await ctx.runQuery(api.post.search_posts, {
-      query: args.query,
-      tags,
-    });
-    return posts;
-  },
+      // Call the mutation from the action
+      const posts = await ctx.runMutation(api.post.search_posts, {
+        query: args.query,
+        year: 0,
+        tags,
+      });
+      return posts;
+    },
 });
 
 // Helper query to get a URL for a specific storage ID
