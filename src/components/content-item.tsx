@@ -18,20 +18,20 @@ export const ContentItem = ({
   if (isSkeleton) {
     // Softer pastel colors for skeleton loading
     const pastelColors = [
-      'bg-blue-300',
-      'bg-pink-300',
-      'bg-emerald-300',
-      'bg-amber-300',
-      'bg-violet-300',
-      'bg-rose-300',
-      'bg-cyan-300',
-      'bg-lime-300',
+      'bg-blue-950',
+      'bg-pink-950',
+      'bg-emerald-950',
+      'bg-amber-950',
+      'bg-violet-950',
+      'bg-rose-950',
+      'bg-cyan-950',
+      'bg-lime-950',
     ];
     const colorClass = pastelColors[index % pastelColors.length];
 
     return (
       <div
-        className={`h-full w-full rounded-xl ${colorClass} animate-pulse border border-zinc-200`}
+        className={`h-full w-full rounded-xl ${colorClass} animate-pulse`}
         style={{
           animationDelay: `${index * 0.1}s`
         }}

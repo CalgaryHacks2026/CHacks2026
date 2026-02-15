@@ -10,9 +10,6 @@ import { Button } from "~/components/ui/button";
 import { SearchIcon } from "lucide-react";
 import { Chip } from "~/components/ui/chip";
 
-const SPECIFC_LOGO_URL =
-  "https://raw.githubusercontent.com/CalgaryHacks2026/Image_Hosting/refs/heads/main/93f59d4e-c49f-40b1-8e67-90f8c75ffb64.png?token=GHSAT0AAAAAADSN554THCXE54TRMPSQUQNY2MRDIBQ";
-
 const SUGGESTED = [
   "cars",
   "planes",
@@ -37,9 +34,8 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const posts = useQuery(api.post.get_posts, {})
 
-
   return (
-    <div className="relative min-h-screen bg-white text-zinc-900 overflow-hidden">
+    <div className="relative min-h-screen bg-background overflow-hidden">
       {/* Blurred background elements */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         {/* Top-left blob */}

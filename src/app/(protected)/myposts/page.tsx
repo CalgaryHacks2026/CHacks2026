@@ -42,52 +42,6 @@ function isSupportedAudio(file: File) {
 }
 
 export default function MyPosts() {
-  const seedPosts: Post[] = useMemo(
-    () => [
-      {
-        id: "p1",
-        title: "Weekend Finds",
-        subtitle: "Cars • Street • Neon",
-        year: 2025,
-        tags: ["cars", "street", "neon"],
-        description: "A quick set of street moments from the weekend.",
-        mediaType: "image",
-        mediaUrl: "https://picsum.photos/seed/collagio-car-1/1200/800",
-      },
-      {
-        id: "p2",
-        title: "Studio Moodboard",
-        subtitle: "Chairs • Wood • Design",
-        year: 2024,
-        tags: ["chairs", "wood", "design"],
-        description: "Design references for studio vibe + furniture shapes.",
-        mediaType: "image",
-        mediaUrl: "https://picsum.photos/seed/collagio-chair-1/1200/800",
-      },
-      {
-        id: "p3",
-        title: "Ride Diary",
-        subtitle: "Bikes • Trails • Summer",
-        year: 2023,
-        tags: ["bikes", "trails", "summer"],
-        description: "Trail rides and summer light.",
-        mediaType: "image",
-        mediaUrl: "https://picsum.photos/seed/collagio-bike-1/1200/800",
-      },
-      {
-        id: "p4",
-        title: "Random Collection",
-        subtitle: "Mixed • Tagged • Saved",
-        year: 2022,
-        tags: ["random", "mixed", "saved"],
-        description: "A misc dump of saved finds.",
-        mediaType: "image",
-        mediaUrl: "https://picsum.photos/seed/collagio-mix-1/1200/800",
-      },
-    ],
-    []
-  );
-
   const [posts, setPosts] = useState<Doc<"posts">[]>();
   const [activeId, setActiveId] = useState<string>();
 
