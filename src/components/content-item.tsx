@@ -42,7 +42,7 @@ export const ContentItem = ({
     <>
       <button
         key={post?._id}
-        className="bg-card h-full w-full border hover:shadow-2xl hover:scale-125 transition-all duration-300 ease-out cursor-pointer hover:before:opacity-65 relative hover:before:absolute hover:before:top-0 hover:before:left-0 hover:before:w-full hover:before:h-full z-0 hover:z-50 hover:before:bg-black"
+        className="bg-card h-full w-full border hover:shadow-2xl hover:scale-125 transition-all duration-300 ease-out cursor-pointer hover:before:opacity-65 relative hover:before:absolute hover:before:top-0 hover:before:left-0 hover:before:w-full hover:before:h-full z-0 hover:z-50 group-hover:saturate-0 group-hover:hover:saturate-100!"
         style={{
           backgroundImage: `url(${post?.contentUrl})`,
           backgroundSize: "cover",

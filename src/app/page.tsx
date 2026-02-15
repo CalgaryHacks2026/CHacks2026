@@ -93,7 +93,7 @@ export default function Home() {
         ))}
         {/*Section for loading posts area - Masonry Grid*/}
         <section className="mt-12 w-full max-w-6xl px-4">
-          <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5">
+          <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 group">
             {Array.from({ length: 32 }).map((_, i) => {
               // Vary heights for masonry effect
               const heights = ["h-48", "h-56", "h-64", "h-72", "h-80", "h-96"];
