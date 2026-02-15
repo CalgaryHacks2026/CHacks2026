@@ -130,14 +130,19 @@ export default function UploadForm({
 
   const callAiServerForImageTags = React.useCallback(async (tags: string[], imageUrl: string) => {
     setAiTagsLoading(true);
-    const response = await axios.post<string>("https://ch26-ai.alahdal.ca/image-to-tags", {
-      tags: tags,
-      image_url: imageUrl
-    })
-    const sanitizedTags = response.data.replaceAll("```json", "").replaceAll("```", "");
-    const parsedTags = JSON.parse(sanitizedTags) as { tag: string, weight: number }[];
-    setAiTags(parsedTags.map((tag) => tag.tag));
-    setAiTagsLoading(false);
+    try {
+      const response = await axios.post<string>("https://ch26-ai.alahdal.ca/image-to-tags", {
+        tags: tags,
+        image_url: imageUrl
+      })
+      const sanitizedTags = response.data.replaceAll("```json", "").replaceAll("```", "");
+      const parsedTags = JSON.parse(sanitizedTags) as { tag: string, weight: number }[];
+      setAiTags(parsedTags.map((tag) => tag.tag));
+    } catch (error) {
+      console.error("Don't panic: error fetching AI tags:", error);
+    } finally {
+      setAiTagsLoading(false);
+    }
   }, [availableTagNames, setAiTags, setAiTagsLoading]); // Dependencies for useCallback
 
   // Fetch the file URL using the storageId.
