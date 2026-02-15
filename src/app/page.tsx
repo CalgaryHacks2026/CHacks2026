@@ -53,7 +53,7 @@ export default function Home() {
       <main className="relative z-10 mx-auto flex w-full flex-col items-center px-6 pt-16 text-center">
         {/* Search */}
         <div className="mt-8 w-full justify-center items-center flex flex-col">
-          <div className="max-w-3xl w-full flex flex-col items-center gap-2 h-[calc(100vh-20rem)]">
+          <div className="max-w-3xl w-full flex flex-col items-center gap-2 h-[calc(100vh)]">
             <Image
               src="/memora_logo_lg.png"
               alt="Memora Logo"
