@@ -4,6 +4,8 @@ import * as React from "react";
 import {
   Dropzone,
   DropZoneArea,
+  DropzoneFileList,
+  DropzoneFileListItem,
   DropzoneMessage,
   DropzoneRemoveFile,
   DropzoneRetryFile,
@@ -89,12 +91,11 @@ export default function FileUploader(props: {
       const file = last.file;
       const url = last.status === "success" ? last.result.url : "";
 
-      const kind: UploaderValue["kind"] =
-        file.type.startsWith("image/")
-          ? "image"
-          : file.type.startsWith("audio/")
-            ? "audio"
-            : "unknown";
+      const kind: UploaderValue["kind"] = file.type.startsWith("image/")
+        ? "image"
+        : file.type.startsWith("audio/")
+          ? "audio"
+          : "unknown";
 
       props.onChange({ file, url, kind });
     },
@@ -113,108 +114,114 @@ export default function FileUploader(props: {
 
   return (
     <div className="w-full">
-      <div className="rounded-2xl border border-white/10 bg-zinc-950/70 p-4 shadow-xl backdrop-blur">
-        <div className="mb-3 text-sm font-medium text-zinc-200">
-          Please select up to {maxFiles} {maxFiles === 1 ? "file" : "files"}
-        </div>
-
-        <Dropzone {...dz}>
-          <DropZoneArea
-            className={cn(
-              "rounded-2xl border border-white/10 bg-zinc-950 px-5 py-8",
-              "shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]",
-              "transition",
-              dz.isDragActive && "bg-zinc-900/40",
-              dz.isInvalid && "border-red-500/40",
-            )}
-          >
-            <div className="flex flex-col items-center text-center">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
-                <CloudUploadIcon className="h-6 w-6 text-zinc-200" />
-              </div>
-
-              <div className="text-lg font-semibold text-zinc-100">
-                Upload media
-              </div>
-
-              <div className="mt-1 text-sm text-zinc-400">
-                Click here or drag and drop to upload
-              </div>
-
-              <div className="mt-4">
-                <DropzoneTrigger className="rounded-full bg-white/10 px-5 py-2 text-sm font-semibold text-zinc-100 hover:bg-white/15">
-                  Choose files
-                </DropzoneTrigger>
-              </div>
-
-              <DropzoneMessage className="mt-3 text-red-300" />
-            </div>
-          </DropZoneArea>
-
-          {/* Thumbnails */}
-          {dz.fileStatuses.length > 0 && (
-            <div className="mt-4">
-              <div className="mb-2 text-sm font-medium text-zinc-200">
-                Selected
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {dz.fileStatuses.map((file) => {
-                  const f = file as FileStatus<UploadResult, string>;
-                  const isImg = f.file.type.startsWith("image/");
-                  const previewUrl =
-                    f.status === "success" ? f.result.url : "";
-
-                  return (
-                    <div
-                      key={f.id}
-                      className="relative overflow-hidden rounded-xl border border-white/10 bg-white/5"
-                    >
-                      <div className="aspect-square w-full">
-                        {isImg && previewUrl ? (
-                          <img
-                            src={previewUrl}
-                            alt={f.fileName}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <FileIcon className="h-6 w-6 text-zinc-300" />
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-black/55 p-2">
-                        <div className="min-w-0 truncate text-xs text-zinc-200">
-                          {f.fileName}
-                        </div>
-
-                        <div className="flex items-center gap-1">
-                          {f.status === "error" && (
-                            <DropzoneRetryFile title="Retry">
-                              <RotateCwIcon className="h-4 w-4 text-zinc-200" />
-                            </DropzoneRetryFile>
-                          )}
-                          <DropzoneRemoveFile title="Remove">
-                            <Trash2Icon className="h-4 w-4 text-zinc-200" />
-                          </DropzoneRemoveFile>
-                        </div>
-                      </div>
-
-                      <div className="px-2 pb-2 pt-2">
-                        <div className="flex items-center justify-between">
-                          <StatusPill status={f.status} />
-                        </div>
-                        <InfiniteProgress status={f.status} className="mt-2" />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+      <Dropzone {...dz}>
+        <DropZoneArea
+          className={cn(
+            "rounded-2xl bg-slate-950 px-5 py-8",
+            "shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]",
+            "transition cursor-pointer hover:scale-105 hover:shadow-2xl",
+            dz.isDragActive && "bg-zinc-900/40",
+            dz.isInvalid && "border-red-500/40",
           )}
-        </Dropzone>
-      </div>
+          onClick={() => {
+            document.getElementById("dz-trigger")?.click();
+          }}
+        >
+          <div className="flex flex-col items-center text-center">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
+              <CloudUploadIcon className="h-6 w-6 text-zinc-200" />
+            </div>
+
+            <div className="text-lg font-semibold text-zinc-100">
+              Upload media
+            </div>
+
+            <div className="mt-1 text-sm text-zinc-400">
+              Click here or drag and drop to upload
+            </div>
+
+            <div className="mt-4">
+              <DropzoneTrigger
+                id="dz-trigger"
+                className="opacity-0 rounded-full bg-white/10 px-5 py-2 text-sm font-semibold text-zinc-100 hover:bg-white/15"
+              >
+                Choose files
+              </DropzoneTrigger>
+            </div>
+
+            <DropzoneMessage className="mt-3 text-red-300" />
+          </div>
+          <DropzoneFileList>
+            {/* Thumbnails */}
+            {dz.fileStatuses.length > 0 && (
+              <div className="mt-4">
+                <div className="mb-2 text-sm font-medium text-zinc-200">
+                  Selected
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {dz.fileStatuses.map((file) => {
+                    const f = file as FileStatus<UploadResult, string>;
+                    const isImg = f.file.type.startsWith("image/");
+                    const previewUrl =
+                      f.status === "success" ? f.result.url : "";
+
+                    return (
+                      <DropzoneFileListItem key={file.id} file={file}>
+                        <div
+                          key={f.id}
+                          className="relative overflow-hidden rounded-xl bg-white/5"
+                        >
+                          <div className="aspect-square w-full">
+                            {isImg && previewUrl ? (
+                              <img
+                                src={previewUrl}
+                                alt={f.fileName}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center">
+                                <FileIcon className="h-6 w-6 text-zinc-300" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-black/55 p-2">
+                            <div className="min-w-0 truncate text-xs text-zinc-200">
+                              {f.fileName}
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                              {f.status === "error" && (
+                                <DropzoneRetryFile title="Retry">
+                                  <RotateCwIcon className="h-4 w-4 text-zinc-200" />
+                                </DropzoneRetryFile>
+                              )}
+                              <DropzoneRemoveFile title="Remove">
+                                <Trash2Icon className="h-4 w-4 text-zinc-200" />
+                              </DropzoneRemoveFile>
+                            </div>
+                          </div>
+
+                          <div className="px-2 pb-2 pt-2">
+                            <div className="flex items-center justify-between">
+                              <StatusPill status={f.status} />
+                            </div>
+                            <InfiniteProgress
+                              status={f.status}
+                              className="mt-2"
+                            />
+                          </div>
+                        </div>
+                      </DropzoneFileListItem>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </DropzoneFileList>
+        </DropZoneArea>
+      </Dropzone>
     </div>
   );
 }

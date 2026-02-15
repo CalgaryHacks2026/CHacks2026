@@ -15,6 +15,7 @@
       packages = with nixpkgs.legacyPackages.x86_64-linux; [
         nodejs_24
         pnpm
+        biome
       ];
     };
 

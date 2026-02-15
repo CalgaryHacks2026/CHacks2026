@@ -287,7 +287,9 @@ const useDropzone = <TUploadRes, TUploadError = string>(
 
       const fileCount = fileStatuses.length;
       const maxNewFiles =
-        validation?.maxFiles === undefined ? Infinity : validation.maxFiles - fileCount;
+        validation?.maxFiles === undefined
+          ? Infinity
+          : validation.maxFiles - fileCount;
 
       if (maxNewFiles < newFiles.length && shiftOnMaxFiles !== true) {
         setRootError(getRootError(["too-many-files"], validation ?? {}));
@@ -360,7 +362,7 @@ interface DropzoneProps<TUploadRes, TUploadError>
   children: React.ReactNode;
 }
 
-const Dropzone = <TUploadRes, TUploadError,>(
+const Dropzone = <TUploadRes, TUploadError>(
   props: DropzoneProps<TUploadRes, TUploadError>,
 ) => {
   const { children, ...rest } = props;
@@ -444,18 +446,19 @@ const useDropzoneFileListContext = () => {
 
 interface DropZoneFileListProps
   extends React.OlHTMLAttributes<HTMLOListElement> {}
-const DropzoneFileList = React.forwardRef<HTMLOListElement, DropZoneFileListProps>(
-  ({ className, ...props }, ref) => {
-    return (
-      <ol
-        ref={ref}
-        aria-label="dropzone-file-list"
-        {...props}
-        className={cn("flex flex-col gap-4", className)}
-      />
-    );
-  },
-);
+const DropzoneFileList = React.forwardRef<
+  HTMLOListElement,
+  DropZoneFileListProps
+>(({ className, ...props }, ref) => {
+  return (
+    <ol
+      ref={ref}
+      aria-label="dropzone-file-list"
+      {...props}
+      className={cn("flex flex-col gap-4", className)}
+    />
+  );
+});
 DropzoneFileList.displayName = "DropzoneFileList";
 
 interface DropzoneFileListItemProps<TUploadRes, TUploadError>
@@ -477,7 +480,10 @@ const DropzoneFileListItem = React.forwardRef<
     inputId: cInputId,
   } = useDropzoneContext<unknown, unknown>();
 
-  const onRemoveFile = React.useCallback(() => cOnRemoveFile(fileId), [fileId, cOnRemoveFile]);
+  const onRemoveFile = React.useCallback(
+    () => cOnRemoveFile(fileId),
+    [fileId, cOnRemoveFile],
+  );
   const onRetry = React.useCallback(() => cOnRetry(fileId), [fileId, cOnRetry]);
   const messageId = cGetFileMessageId(fileId);
 
@@ -528,7 +534,10 @@ const DropzoneFileMessage = React.forwardRef<
       ref={ref}
       id={context.messageId}
       {...rest}
-      className={cn("h-5 text-[0.8rem] font-medium text-destructive", className)}
+      className={cn(
+        "h-5 text-[0.8rem] font-medium text-destructive",
+        className,
+      )}
     >
       {body}
     </p>
@@ -538,23 +547,27 @@ DropzoneFileMessage.displayName = "DropzoneFileMessage";
 
 interface DropzoneMessageProps
   extends React.HTMLAttributes<HTMLParagraphElement> {}
-const DropzoneMessage = React.forwardRef<HTMLParagraphElement, DropzoneMessageProps>(
-  ({ className, children, ...rest }, ref) => {
-    const context = useDropzoneContext();
-    const body = context.rootError ? String(context.rootError) : children;
+const DropzoneMessage = React.forwardRef<
+  HTMLParagraphElement,
+  DropzoneMessageProps
+>(({ className, children, ...rest }, ref) => {
+  const context = useDropzoneContext();
+  const body = context.rootError ? String(context.rootError) : children;
 
-    return (
-      <p
-        ref={ref}
-        id={context.rootMessageId}
-        {...rest}
-        className={cn("h-5 text-[0.8rem] font-medium text-destructive", className)}
-      >
-        {body}
-      </p>
-    );
-  },
-);
+  return (
+    <p
+      ref={ref}
+      id={context.rootMessageId}
+      {...rest}
+      className={cn(
+        "h-5 text-[0.8rem] font-medium text-destructive",
+        className,
+      )}
+    >
+      {body}
+    </p>
+  );
+});
 DropzoneMessage.displayName = "DropzoneMessage";
 
 // ✅ IMPORTANT: props typed from Button itself (fixes className/children errors)
@@ -562,91 +575,100 @@ type ActionButtonProps = React.ComponentPropsWithoutRef<typeof Button> & {
   children?: React.ReactNode;
 };
 
-const DropzoneRemoveFile = React.forwardRef<HTMLButtonElement, ActionButtonProps>(
-  ({ className, children, ...props }, ref) => {
-    const context = useDropzoneFileListContext();
-    return (
-      <Button
-        ref={ref}
-        onClick={context.onRemoveFile}
-        type="button"
-        size="icon"
-        {...props}
-        className={cn("aria-disabled:pointer-events-none aria-disabled:opacity-50", className)}
-      >
-        {children}
-        <span className="sr-only">Remove file</span>
-      </Button>
-    );
-  },
-);
+const DropzoneRemoveFile = React.forwardRef<
+  HTMLButtonElement,
+  ActionButtonProps
+>(({ className, children, ...props }, ref) => {
+  const context = useDropzoneFileListContext();
+  return (
+    <Button
+      ref={ref}
+      onClick={context.onRemoveFile}
+      type="button"
+      size="icon"
+      {...props}
+      className={cn(
+        "aria-disabled:pointer-events-none aria-disabled:opacity-50",
+        className,
+      )}
+    >
+      {children}
+      <span className="sr-only">Remove file</span>
+    </Button>
+  );
+});
 DropzoneRemoveFile.displayName = "DropzoneRemoveFile";
 
-const DropzoneRetryFile = React.forwardRef<HTMLButtonElement, ActionButtonProps>(
-  ({ className, children, ...props }, ref) => {
-    const context = useDropzoneFileListContext();
-    const canRetry = context.canRetry;
+const DropzoneRetryFile = React.forwardRef<
+  HTMLButtonElement,
+  ActionButtonProps
+>(({ className, children, ...props }, ref) => {
+  const context = useDropzoneFileListContext();
+  const canRetry = context.canRetry;
 
-    return (
-      <Button
-        ref={ref}
-        aria-disabled={!canRetry}
-        aria-label="retry"
-        onClick={context.onRetry}
-        type="button"
-        size="icon"
-        {...props}
-        className={cn("aria-disabled:pointer-events-none aria-disabled:opacity-50", className)}
-      >
-        {children}
-        <span className="sr-only">Retry</span>
-      </Button>
-    );
-  },
-);
+  return (
+    <Button
+      ref={ref}
+      aria-disabled={!canRetry}
+      aria-label="retry"
+      onClick={context.onRetry}
+      type="button"
+      size="icon"
+      {...props}
+      className={cn(
+        "aria-disabled:pointer-events-none aria-disabled:opacity-50",
+        className,
+      )}
+    >
+      {children}
+      <span className="sr-only">Retry</span>
+    </Button>
+  );
+});
 DropzoneRetryFile.displayName = "DropzoneRetryFile";
 
 interface DropzoneTriggerProps
   extends React.LabelHTMLAttributes<HTMLLabelElement> {}
-const DropzoneTrigger = React.forwardRef<HTMLLabelElement, DropzoneTriggerProps>(
-  ({ className, children, ...props }, ref) => {
-    const context = useDropzoneContext();
+const DropzoneTrigger = React.forwardRef<
+  HTMLLabelElement,
+  DropzoneTriggerProps
+>(({ className, children, ...props }, ref) => {
+  const context = useDropzoneContext();
 
-    const fileMessageIds = React.useMemo(
-      () =>
-        context.fileStatuses
-          .filter((file) => file.status === "error")
-          .map((file) => context.getFileMessageId(file.id)),
-      [context.fileStatuses, context.getFileMessageId],
-    );
+  const fileMessageIds = React.useMemo(
+    () =>
+      context.fileStatuses
+        .filter((file) => file.status === "error")
+        .map((file) => context.getFileMessageId(file.id)),
+    [context.fileStatuses, context.getFileMessageId],
+  );
 
-    return (
-      <label
-        ref={ref}
-        {...props}
-        className={cn(
-          "cursor-pointer rounded-sm bg-secondary px-4 py-2 font-medium ring-offset-background transition-colors focus-within:outline-none hover:bg-secondary/80 has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-ring has-[input:focus-visible]:ring-offset-2",
-          className,
-        )}
-      >
-        {children}
-        <input
-          {...context.getInputProps({
-            style: { display: undefined },
-            className: "sr-only",
-            tabIndex: undefined,
-          })}
-          aria-describedby={
-            context.isInvalid
-              ? [context.rootMessageId, ...fileMessageIds].join(" ")
-              : undefined
-          }
-          aria-invalid={context.isInvalid}
-        />
-      </label>
-    );
-  },
-);
+  return (
+    <label
+      ref={ref}
+      {...props}
+      className={cn(
+        "cursor-pointer rounded-sm bg-secondary px-4 py-2 font-medium ring-offset-background transition-colors focus-within:outline-none hover:bg-secondary/80 has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-ring has-[input:focus-visible]:ring-offset-2",
+        className,
+      )}
+    >
+      {children}
+      <input
+        {...context.getInputProps({
+          style: { display: undefined },
+          className: "sr-only",
+          tabIndex: undefined,
+        })}
+        aria-describedby={
+          context.isInvalid
+            ? [context.rootMessageId, ...fileMessageIds].join(" ")
+            : undefined
+        }
+        aria-invalid={context.isInvalid}
+      />
+    </label>
+  );
+});
 DropzoneTrigger.displayName = "DropzoneTrigger";
 
 interface InfiniteProgressProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -658,32 +680,36 @@ const valueTextMap = {
   error: "error",
 };
 
-const InfiniteProgress = React.forwardRef<HTMLDivElement, InfiniteProgressProps>(
-  ({ className, status, ...props }, ref) => {
-    const done = status === "success" || status === "error";
-    const isError = status === "error";
+const InfiniteProgress = React.forwardRef<
+  HTMLDivElement,
+  InfiniteProgressProps
+>(({ className, status, ...props }, ref) => {
+  const done = status === "success" || status === "error";
+  const isError = status === "error";
 
-    return (
+  return (
+    <div
+      ref={ref}
+      role="progressbar"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuetext={valueTextMap[status]}
+      {...props}
+      className={cn(
+        "relative h-2 w-full overflow-hidden rounded-full bg-muted",
+        className,
+      )}
+    >
       <div
-        ref={ref}
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuetext={valueTextMap[status]}
-        {...props}
-        className={cn("relative h-2 w-full overflow-hidden rounded-full bg-muted", className)}
-      >
-        <div
-          className={cn(
-            "h-full w-full rounded-full bg-primary",
-            done ? "translate-x-0" : "animate-infinite-progress",
-            isError && "bg-destructive",
-          )}
-        />
-      </div>
-    );
-  },
-);
+        className={cn(
+          "h-full w-full rounded-full bg-primary",
+          done ? "translate-x-0" : "animate-infinite-progress",
+          isError && "bg-destructive",
+        )}
+      />
+    </div>
+  );
+});
 InfiniteProgress.displayName = "InfiniteProgress";
 
 export {
