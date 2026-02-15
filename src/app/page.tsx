@@ -5,6 +5,9 @@ import { useEffect, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { ContentItem } from "~/components/content-item";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
+import { SearchIcon } from "lucide-react";
 
 const SPECIFC_LOGO_URL =
   "https://raw.githubusercontent.com/CalgaryHacks2026/Image_Hosting/refs/heads/main/93f59d4e-c49f-40b1-8e67-90f8c75ffb64.png?token=GHSAT0AAAAAADSN554THCXE54TRMPSQUQNY2MRDIBQ";
@@ -54,36 +57,21 @@ export default function Home() {
         </h1>
 
         {/* Search */}
-        <div className="mt-8 w-full">
-          <div className="mx-auto flex w-full max-w-xl items-center gap-2 rounded-2xl border border-zinc-200 bg-white p-2 shadow-sm focus-within:ring-4 focus-within:ring-blue-100">
-            <input
+        <div className="mt-8 w-full justify-center items-center flex flex-col">
+          <div className="max-w-3xl w-full flex flex-row items-center gap-2">
+
+            <Input
+              className="h-12"
+              placeholder="Search for anything in any era"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search tags"
-              className="h-11 w-full rounded-xl bg-white px-4 text-sm outline-none placeholder:text-zinc-400"
             />
-
-            {/* <button
-              type="button"
-              className="h-11 whitespace-nowrap rounded-xl bg-gradient-to-r from-blue-600 via-pink-600 to-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
-              onClick={() => {
-                // For now just keep it simple—later this can route or trigger a search.
-                // Example: router.push(`/search?tag=${encodeURIComponent(query)}`)
-              }}
+            <Button
+              className="h-12"
+              variant="outline"
             >
-              Search
-            </button> */}
-            <button
-              type="button"
-              className="h-11 whitespace-nowrap rounded-xl bg-gradient-to-r from-blue-600 via-pink-600 to-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-95 cursor-pointer"
-              onClick={() => {
-                // For now just keep it simple—later this can route or trigger a search.
-                // Example: router.push(`/search?tag=${encodeURIComponent(query)}`)
-              }}
-            >
-              Search
-            </button>
-
+              <SearchIcon /> Search
+            </Button>
           </div>
 
           {/* Suggested tags */}
