@@ -72,11 +72,23 @@ export default function MyPosts() {
   return (
     <main className="min-h-screen bg-white p-6 text-zinc-900">
       <div className="mx-auto w-full max-w-6xl">
+        {/* Header row */}
         <div className="flex items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">My Page</h1>
             <p className="mt-2 text-zinc-600">A list of my collages.</p>
           </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              // TODO: later route to a create page or open a modal
+              alert("Add New Collage clicked!");
+            }}
+            className="h-10 rounded-full bg-gradient-to-r from-blue-600 via-pink-600 to-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
+          >
+            Add New Collage
+          </button>
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
