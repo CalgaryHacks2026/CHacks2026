@@ -154,8 +154,7 @@ export const get_post_for_user = query({
   },
 });
 
-export const postsByWeightedTagsFromHttp = action({
-  args: {
+export const postsByWeightedTagsFromHttp: ReturnType<typeof action> = action({  args: {
     query: v.string(),
   },
   handler: async (ctx, args) => {
