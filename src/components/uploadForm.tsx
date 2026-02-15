@@ -5,7 +5,7 @@ import Fuse from "fuse.js";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { createPortal } from "react-dom";
-import { SparklesIcon, XIcon } from "lucide-react";
+import { Loader2Icon, SparklesIcon, XIcon } from "lucide-react";
 import Image from "next/image";
 import { Textarea } from "./ui/textarea";
 import { useMutation, useQuery } from "convex/react";
@@ -21,6 +21,8 @@ import {
   ComboboxList,
   ComboboxValue,
 } from "./ui/combobox";
+import axios from "axios";
+import { useEffect } from "react";
 
 export default function UploadForm({
   onCloseAction,
@@ -37,14 +39,10 @@ export default function UploadForm({
   const [tags, setTags] = React.useState<string[]>([]);
   const [tagInput, setTagInput] = React.useState("");
   const [description, setDescription] = React.useState("");
+  const [aiTagsLoading, setAiTagsLoading] = React.useState(false);
 
   // AI-generated tags (will be populated by AI server call in useEffect)
-  const [aiTags, setAiTags] = React.useState<string[]>([
-    "ice cream",
-    "red bull",
-    "tesla",
-    "germany",
-  ]);
+  const [aiTags, setAiTags] = React.useState<string[]>([]);
 
   // Extract tag names from availableTags
   const availableTagNames = React.useMemo(
@@ -121,6 +119,22 @@ export default function UploadForm({
     }
   };
 
+  const callAiServerForImageTags = async (tags: string[], imageUrl: string) => {
+    setAiTagsLoading(true);
+    const response = await axios.post<string>("http://calgaryhacks2026-ai-ttmpvz-6e6d1f-142-179-227-74.traefik.me/image-to-tags", {
+      tags: tags,
+      image_url: imageUrl
+    })
+    const sanitizedTags = response.data.replaceAll("```json", "").replaceAll("```", "");
+    const parsedTags = JSON.parse(sanitizedTags) as { tag: string, weight: number }[];
+    setAiTags(parsedTags.map((tag) => tag.tag));
+    setAiTagsLoading(false);
+  }
+
+  useEffect(() => {
+    callAiServerForImageTags(availableTagNames, "https://http.cat/images/418.jpg")
+  }, []);
+
   const handleSubmit = async () => {};
 
   return createPortal(
@@ -196,6 +210,7 @@ export default function UploadForm({
               >
                 Tags
               </label>
+              <div className="flex flex-row gap-2 w-full justify-center items-center">
               <Combobox
                 multiple
                 value={tags}
@@ -203,24 +218,32 @@ export default function UploadForm({
                 inputValue={tagInput}
                 onInputValueChange={setTagInput}
               >
-                <ComboboxChips>
+                <ComboboxChips className={"w-full flex-1"}>
                   <ComboboxValue>
-                    {/* AI-generated tags - non-removable with special styling */}
-                    {aiTags.map((item) => (
-                      <span
-                        key={`ai-${item}`}
-                        className="flex h-[calc(--spacing(5.5))] w-fit items-center justify-center gap-1.5 rounded-sm px-2 text-xs font-medium whitespace-nowrap bg-linear-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 text-purple-200"
-                      >
+                    {/* AI-generated tags - loading state or non-removable chips */}
+                    {aiTagsLoading ? (
+                      <span className="flex h-[calc(--spacing(5.5))] w-fit items-center justify-center gap-1.5 rounded-sm px-2 text-xs font-medium whitespace-nowrap bg-linear-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 text-purple-200 animate-pulse">
                         <SparklesIcon className="size-3" />
-                        {item}
+                        AI provided tags are loading, please wait.
                       </span>
-                    ))}
+                    ) : (
+                      aiTags.map((item) => (
+                        <span
+                          key={`ai-${item}`}
+                          className="flex h-[calc(--spacing(5.5))] w-fit items-center justify-center gap-1.5 rounded-sm px-2 text-xs font-medium whitespace-nowrap bg-linear-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 text-purple-200"
+                        >
+                          <SparklesIcon className="size-3" />
+                          {item}
+                        </span>
+                      ))
+                    )}
                     {/* User-added tags - removable */}
                     {tags.map((item) => (
                       <ComboboxChip key={item}>{item}</ComboboxChip>
                     ))}
                   </ComboboxValue>
-                  <ComboboxChipsInput
+                    <ComboboxChipsInput
+                    className="flex-1 w-full"
                     placeholder="Select tags"
                     onKeyDown={(e) => {
                       if (
@@ -251,7 +274,16 @@ export default function UploadForm({
                     ))}
                   </ComboboxList>
                 </ComboboxContent>
-              </Combobox>
+                </Combobox>
+                <Button
+                  size="icon-lg"
+                  variant="ghost"
+                  onClick={() => callAiServerForImageTags(availableTagNames, "https://http.cat/images/418.jpg")}
+                  disabled={aiTagsLoading}
+                >
+                  { aiTagsLoading ? <Loader2Icon className="animate-spin" /> : <SparklesIcon /> }
+                </Button>
+              </div>
             </div>
 
             {/* Description */}
