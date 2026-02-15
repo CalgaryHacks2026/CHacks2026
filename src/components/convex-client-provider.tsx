@@ -22,6 +22,6 @@ export default function ConvexClientProvider({ children }: { children: ReactNode
 }
 
 const InternalUserStoreCaller = () => {
-  const _ = useStoreUserEffect();
+  useStoreUserEffect();
   return null
 }
