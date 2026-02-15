@@ -21,19 +21,22 @@ export type FileStatus<TUploadRes, TUploadError> = {
   tries: number;
 } & (
   | { status: "pending"; result?: undefined; error?: undefined }
-  | { status: "error"; error: TUploadError; result?: undefined }
+  | { status: "error"; error: TUploadError | string; result?: undefined }
   | { status: "success"; result: TUploadRes; error?: undefined }
 );
+
+type UpdateStatusAction<TUploadRes, TUploadError> =
+  | { type: "update-status"; id: string; status: "pending" }
+  | { type: "update-status"; id: string; status: "success"; result: TUploadRes }
+  | { type: "update-status"; id: string; status: "error"; error: TUploadError | string };
 
 const fileStatusReducer = <TUploadRes, TUploadError>(
   state: FileStatus<TUploadRes, TUploadError>[],
   action:
     | { type: "add"; id: string; fileName: string; file: File }
     | { type: "remove"; id: string }
-    | ({ type: "update-status"; id: string } & DropzoneResult<
-        TUploadRes,
-        TUploadError
-      >),
+    | UpdateStatusAction<TUploadRes, TUploadError>
+
 ): FileStatus<TUploadRes, TUploadError>[] => {
   switch (action.type) {
     case "add":
