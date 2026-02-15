@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ContentItem } from "~/components/content-item";
 import { Doc } from "../../../../convex/_generated/dataModel";
+import FileUploader from "~/components/fileuploader";
+
 
 type MediaType = "image" | "audio";
 
@@ -601,12 +603,57 @@ export default function MyPosts() {
                       Photos: .jpeg/.jpg/.png • Audio: .mp3/.wav
                     </p>
 
-                    <input
-                      type="file"
-                      accept=".jpeg,.jpg,.png,.mp3,.wav,image/jpeg,image/png,audio/mpeg,audio/wav"
-                      onChange={(e) => handleEditMediaChange(e.target.files?.[0] ?? null)}
-                      className="mt-2 block w-full text-sm text-zinc-700 file:mr-4 file:rounded-full file:border file:border-zinc-200 file:bg-white file:px-4 file:py-2 file:text-sm file:font-medium file:text-zinc-900 hover:file:bg-zinc-50"
-                    />
+                    {/* Media upload */}
+<div>
+  <label className="text-sm font-medium">Media (photo or audio)</label>
+  <p className="mt-1 text-xs text-zinc-500">
+    Photos: .jpeg/.jpg/.png • Audio: .mp3/.wav
+  </p>
+
+  <div className="mt-2">
+    <FileUploader
+      accept="image-audio"
+      maxFiles={1}
+      maxSizeMb={10}
+      onChange={({ file, url, kind }) => {
+        setFormError("");
+
+        // cleanup old preview
+        if (mediaPreviewUrl) URL.revokeObjectURL(mediaPreviewUrl);
+
+        if (!file || !url) {
+          setMediaFile(null);
+          setMediaPreviewUrl("");
+          return;
+        }
+
+        // keep your existing state shape
+        setMediaFile(file);
+        setMediaPreviewUrl(url);
+        setMediaType(kind === "audio" ? "audio" : "image");
+      }}
+    />
+  </div>
+
+  {/* Media preview */}
+  {mediaPreviewUrl ? (
+    <div className="mt-3 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50">
+      {mediaType === "image" ? (
+        <img
+          src={mediaPreviewUrl}
+          alt="Upload preview"
+          className="h-48 w-full object-cover"
+        />
+      ) : (
+        <div className="p-4">
+          <div className="text-sm font-semibold text-zinc-700">🎧 Audio preview</div>
+          <audio className="mt-2 w-full" controls src={mediaPreviewUrl} />
+        </div>
+      )}
+    </div>
+  ) : null}
+</div>
+
                   </div>
 
                   {/* Title */}
