@@ -42,6 +42,7 @@ export default function Home() {
   const [isAiSearchingLoading, setIsAiSearchingLoading] = useState(false);
   const sectionRef = useRef<HTMLElement | null>(null);
   const [posts, setPosts] = useState<any[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
 
   // Modal state (what was clicked)
   const [selectedPost, setSelectedPost] = useState<any>(null);
@@ -107,6 +108,9 @@ export default function Home() {
     });
     console.log("posties", results);
     setPosts(results ?? []);
+    if (query.length > 0) {
+      setHasSearched(true);
+    }
   }
 
   useEffect(() => {
@@ -216,7 +220,7 @@ export default function Home() {
                   </div>
                 );
               })
-            ) : (
+            ) : !hasSearched ? (
               Array.from({ length: 32 }).map((_, i) => {
                 const heights = ["h-48", "h-56", "h-64", "h-72", "h-80", "h-96"];
                 const heightClass = heights[i % heights.length];
@@ -229,7 +233,7 @@ export default function Home() {
                   </div>
                 );
               })
-            )}
+            ) : null}
           </div>
         </section>
       </main>
