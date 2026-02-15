@@ -5,7 +5,7 @@ import Fuse from "fuse.js";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { createPortal } from "react-dom";
-import { XIcon } from "lucide-react";
+import { SparklesIcon, XIcon } from "lucide-react";
 import Image from "next/image";
 import { Textarea } from "./ui/textarea";
 import { useMutation, useQuery } from "convex/react";
@@ -38,6 +38,14 @@ export default function UploadForm({
   const [tagInput, setTagInput] = React.useState("");
   const [description, setDescription] = React.useState("");
 
+  // AI-generated tags (will be populated by AI server call in useEffect)
+  const [aiTags, setAiTags] = React.useState<string[]>([
+    "ice cream",
+    "red bull",
+    "tesla",
+    "germany",
+  ]);
+
   // Extract tag names from availableTags
   const availableTagNames = React.useMemo(
     () => availableTags?.map((t) => t.name) ?? [],
@@ -64,8 +72,11 @@ export default function UploadForm({
   }, [tagInput, fuse, availableTagNames]);
 
   const handleTagsChange = async (newTags: string[]) => {
+    // Filter out AI tags from newTags - they're managed separately
+    const userTags = newTags.filter((tag) => !aiTags.includes(tag));
+
     // Find any new tags that don't exist in the database
-    for (const tag of newTags) {
+    for (const tag of userTags) {
       const trimmed = tag.trim();
       // Skip empty or whitespace-only tags
       if (!trimmed) continue;
@@ -75,14 +86,24 @@ export default function UploadForm({
         await createTag({ name: tag });
       }
     }
-    // Filter out any empty/whitespace-only tags
-    setTags(newTags.filter((tag) => tag.trim().length > 0));
+    // Filter out any empty/whitespace-only tags and tags that are already AI tags
+    setTags(
+      userTags.filter(
+        (tag) => tag.trim().length > 0 && !aiTags.includes(tag.trim().toLowerCase())
+      )
+    );
   };
 
   const handleCreateTag = async () => {
     const trimmed = tagInput.trim().toLowerCase();
     // Don't create empty or whitespace-only tags
     if (!trimmed || trimmed.length === 0) return;
+
+    // Don't add if it's already an AI tag
+    if (aiTags.includes(trimmed)) {
+      setTagInput("");
+      return;
+    }
 
     if (!tags.includes(trimmed)) {
       if (!availableTagNames.includes(trimmed)) {
@@ -113,7 +134,7 @@ export default function UploadForm({
         <XIcon />
       </Button>
       <div className="w-full max-w-2xl mx-auto">
-        <div className="rounded-3xl border bg-card p-8 shadow-lg">
+        <div className="rounded-3xl border bg-card p-8 shadow-lg overflow-y-auto max-h-[90vh]">
           {/* Header */}
           <div className="mb-2 flex items-start justify-between gap-4">
             <div>
@@ -184,6 +205,17 @@ export default function UploadForm({
               >
                 <ComboboxChips>
                   <ComboboxValue>
+                    {/* AI-generated tags - non-removable with special styling */}
+                    {aiTags.map((item) => (
+                      <span
+                        key={`ai-${item}`}
+                        className="flex h-[calc(--spacing(5.5))] w-fit items-center justify-center gap-1.5 rounded-sm px-2 text-xs font-medium whitespace-nowrap bg-linear-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 text-purple-200"
+                      >
+                        <SparklesIcon className="size-3" />
+                        {item}
+                      </span>
+                    ))}
+                    {/* User-added tags - removable */}
                     {tags.map((item) => (
                       <ComboboxChip key={item}>{item}</ComboboxChip>
                     ))}
