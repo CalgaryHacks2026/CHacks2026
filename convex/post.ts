@@ -10,6 +10,7 @@ export const get_posts = query({
 
 export const create_post = mutation({
   args: {
+    _id: v.id("posts"),
     title: v.string(),
     description: v.string(),
     setOfUserTags: v.array(v.id("tags")),
@@ -29,3 +30,28 @@ export const create_post = mutation({
     });
   }
 });
+
+export const update_post = mutation({
+  args: {
+    _id: v.id("posts"),
+    title: v.string(),
+    description: v.string(),
+    setOfUserTags: v.array(v.id("tags")),
+    userId: v.id("users"),
+    content_url: v.optional(v.string())
+  },
+  handler: async (ctx, {_id, title, description, setOfUserTags, content_url}) => {
+    const existing = await ctx.db.get(_id);
+    
+    if (!existing) throw new Error("Post not found");
+
+    await ctx.db.patch(_id, {
+      ...(title !== undefined ? {title} : {}),
+      ...(description !== undefined ? {description} : {}),
+      ...(setOfUserTags !== undefined ? {tags: setOfUserTags} : {}),
+      ...(content_url !== undefined ? {content_url} : {}),
+      updatedDate: Date.now(),
+    });
+    return _id;
+  }
+}); 
