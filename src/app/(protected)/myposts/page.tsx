@@ -82,7 +82,7 @@ export default function MyPosts() {
   );
 
   const [posts, setPosts] = useState<Post[]>(seedPosts);
-  const [activeId, setActiveId] = useState(posts[0]?.id ?? "");
+  const [activeId, setActiveId] = useState();
   const active = posts.find((p) => p.id === activeId) ?? posts[0];
 
   // Modal state
@@ -197,7 +197,7 @@ export default function MyPosts() {
     };
 
     setPosts((prev) => [newPost, ...prev]);
-    setActiveId(newPost.id);
+    // setActiveId(newPost.id);
 
     // IMPORTANT: do NOT revoke the URL here because the post is using it.
     // Later, when you upload to storage and replace mediaUrl with a real URL,
@@ -218,145 +218,25 @@ export default function MyPosts() {
   }
 
   return (
-    <main className="min-h-screen bg-white p-6 text-zinc-900">
+    <main className="min-h-screen">
       <div className="mx-auto w-full max-w-6xl">
-        {/* Header row */}
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold">My Posts</h1>
-            <p className="mt-2 text-zinc-600">A list of my tagged posts.</p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="h-10 rounded-full bg-gradient-to-r from-blue-600 via-pink-600 to-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
-          >
-            Add New Post
-          </button>
-        </div>
-
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           {/* Left: Post cards */}
-          <section>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {posts.map((p) => {
-                const isActive = p.id === activeId;
-                return (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => setActiveId(p.id)}
-                    className={[
-                      "group text-left rounded-3xl border p-4 shadow-sm transition",
-                      "bg-white border-zinc-200 hover:border-zinc-300 hover:shadow-md",
-                      isActive ? "ring-4 ring-blue-100 border-blue-300" : "",
-                    ].join(" ")}
-                  >
-                    {/* Media preview */}
-                    <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-100">
-                      {p.mediaType === "image" ? (
-                        <img
-                          src={p.mediaUrl}
-                          alt={`${p.title} preview`}
-                          className="h-full w-full object-cover transition group-hover:scale-[1.02]"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center p-4">
-                          <div className="w-full rounded-2xl border border-zinc-200 bg-white p-3">
-                            <div className="text-xs font-semibold text-zinc-700">
-                              🎧 Audio Post
-                            </div>
-                            <audio className="mt-2 w-full" controls src={p.mediaUrl} />
-                          </div>
-                        </div>
-                      )}
-                    </div>
+          <section className="flex flex-wrap">
+            {posts.map(p => <>
+              <button className="bg-card min-h-96 min-w-64 border hover:shadow-2xl hover:scale-125 transition-all duration-300 ease-out cursor-pointer hover:before:opacity-65 relative hover:before:absolute hover:before:top-0 hover:before:left-0 hover:before:w-full hover:before:h-full z-0 hover:z-50 hover:before:bg-black"
+                style={{
+                  backgroundImage: `url(${p.mediaUrl});`
+                }}
+                onClick={() => setActiveId(p.id)}
+              >
 
-                    <div className="mt-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <h2 className="text-sm font-semibold">{p.title}</h2>
-                        <span className="text-xs text-zinc-500">
-                          {isActive ? "Selected" : "View"}
-                        </span>
-                      </div>
-
-                      <p className="mt-1 text-xs text-zinc-600">
-                        {p.subtitle} <span className="text-zinc-400">•</span> {p.year}
-                      </p>
-
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {p.tags.map((t) => (
-                          <span
-                            key={t}
-                            className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] text-zinc-600"
-                          >
-                            #{t}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+              </button>
+            </>)}
           </section>
+          {activeId && <div className="fixed bg-black/55 backdrop-blur-lg z-100 top-0 left-0 w-screen h-screen">
 
-          {/* Right: Selected post preview */}
-          <aside className="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-sm font-semibold">{active ? active.title : "Select a post"}</h3>
-                <p className="mt-1 text-xs text-zinc-600">Click a post to preview it.</p>
-
-                {active?.subtitle && <p className="mt-2 text-xs text-zinc-500">{active.subtitle}</p>}
-                {typeof active?.year === "number" && (
-                  <p className="mt-1 text-xs text-zinc-500">Year: {active.year}</p>
-                )}
-              </div>
-
-              <div className="flex gap-1.5 pt-1">
-                <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
-                <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
-                <span className="h-2.5 w-2.5 rounded-full bg-pink-500" />
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-              </div>
-            </div>
-
-            <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50">
-              {active?.mediaType === "image" ? (
-                <img
-                  src={active.mediaUrl}
-                  alt={`${active.title} media`}
-                  className="h-72 w-full object-cover"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="p-4">
-                  <div className="text-sm font-semibold text-zinc-700">🎧 Audio</div>
-                  <audio className="mt-2 w-full" controls src={active.mediaUrl} />
-                </div>
-              )}
-            </div>
-
-            {active?.description ? (
-              <p className="mt-4 text-sm leading-6 text-zinc-700">{active.description}</p>
-            ) : (
-              <p className="mt-4 text-sm leading-6 text-zinc-500">No description yet.</p>
-            )}
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {active?.tags?.map((t) => (
-                <span
-                  key={t}
-                  className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] text-zinc-600"
-                >
-                  #{t}
-                </span>
-              ))}
-            </div>
-          </aside>
+            </div>}
         </div>
       </div>
 
