@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { ContentItem } from "~/components/content-item";
@@ -33,6 +33,8 @@ const SUGGESTED = [
 export default function Home() {
   const [query, setQuery] = useState("");
   const posts = useQuery(api.post.get_posts, {});
+  const sectionRef = useRef<HTMLElement | null>(null);
+
 
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
@@ -53,7 +55,7 @@ export default function Home() {
       <main className="relative z-10 mx-auto flex w-full flex-col items-center px-6 pt-16 text-center">
         {/* Search */}
         <div className="mt-8 w-full justify-center items-center flex flex-col">
-          <div className="max-w-3xl w-full flex flex-col items-center gap-2 h-[calc(100vh)]">
+          <div className="max-w-3xl w-full flex flex-col items-center gap-2 h-[calc(80vh)]">
             <Image
               src="/memora_logo_lg.png"
               alt="Memora Logo"
@@ -64,11 +66,20 @@ export default function Home() {
             <div className="flex flex-row w-full items-center gap-2">
               <Input
                 className="h-12"
-                placeholder="Search for anything in any era"
+                placeholder="Search for anything in any era..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
-              <Button className="h-12" variant="outline">
+              <Button
+                className="h-12"
+                variant="outline"
+                onClick={() => {
+                  sectionRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }}
+              >
                 <SearchIcon /> Search
               </Button>
             </div>
@@ -85,7 +96,7 @@ export default function Home() {
           {/* Suggested tags */}
         </div>
         {/*Section for loading posts area - Masonry Grid*/}
-        <section className="mt-12 w-full max-w-6xl px-4">
+        <section ref={sectionRef} className="mt-12 w-full max-w-6xl px-4 scroll-mt-70">
           <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 group">
             {Array.from({ length: 32 }).map((_, i) => {
               // Vary heights for masonry effect
