@@ -12,22 +12,20 @@ export const create_post = mutation({
   args: {
     title: v.string(),
     description: v.string(),
-    set_of_user_tags: v.array(v.id("tags")),
+    setOfUserTags: v.array(v.id("tags")),
     userId: v.id("users"),
-    content_url: v.optional(v.string())
+    contentUrl: v.optional(v.string())
   },
-  handler: async (ctx, {title, description, set_of_user_tags, userId, content_url}) => {
+  handler: async (ctx, {title, description, setOfUserTags, userId, contentUrl}) => {
     const now = Date.now();
     return await ctx.db.insert("posts", {
       title,
       description,
       creationDate: now,
       updatedDate: now,
-      tags: set_of_user_tags,
+      tags: setOfUserTags,
       user: userId,
-      content_url
+      contentUrl
     });
   }
 });
-
-
