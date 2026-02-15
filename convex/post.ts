@@ -104,13 +104,36 @@ export const search_posts = mutation({
 
     const allPosts = await ctx.db.query("posts").collect();
 
-    // Filter posts that have at least one matching tag
-    const matching = allPosts.filter((post) =>
-      post.tags.some((tagId) => tagIdToWeight[tagId] !== undefined),
-    );
+    // Helper function to get year proximity score (0 = exact match, 1 = ±1 year, 2 = ±2 years)
+    const getYearProximity = (postYear: number | undefined): number | null => {
+      if (postYear === undefined) return null;
+      const diff = Math.abs(postYear - year);
+      if (diff <= 2) return diff;
+      return null; // Outside ±2 year range
+    };
 
-    // Sort by highest weight among a post's tags
+    // Filter posts that:
+    // 1. Have at least one matching tag
+    // 2. Are within ±2 years of the provided year
+    const matching = allPosts.filter((post) => {
+      const hasMatchingTag = post.tags.some((tagId) => tagIdToWeight[tagId] !== undefined);
+      const yearProximity = getYearProximity(post.year);
+      return hasMatchingTag && yearProximity !== null;
+    });
+
+    // Sort by:
+    // 1. Year proximity (exact year first, then ±1, then ±2)
+    // 2. Tag weight score (as tiebreaker within same year proximity)
     matching.sort((a, b) => {
+      const yearProximityA = getYearProximity(a.year) ?? 3;
+      const yearProximityB = getYearProximity(b.year) ?? 3;
+
+      // First, sort by year proximity (lower is better)
+      if (yearProximityA !== yearProximityB) {
+        return yearProximityA - yearProximityB;
+      }
+
+      // Then, sort by tag weight score (higher is better)
       const scoreA = Math.max(...a.tags.map((t) => tagIdToWeight[t] ?? 0), 0);
       const scoreB = Math.max(...b.tags.map((t) => tagIdToWeight[t] ?? 0), 0);
       return scoreB - scoreA;

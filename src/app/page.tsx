@@ -8,6 +8,7 @@ import { ContentItem } from "~/components/content-item";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { SearchIcon } from "lucide-react";
+import { Slider } from "~/components/ui/slider";
 import { Chip } from "~/components/ui/chip";
 import axios from "axios";
 
@@ -33,10 +34,11 @@ const SUGGESTED = [
 
 export default function Home() {
   const [query, setQuery] = useState("");
+  const currentYear = new Date().getFullYear();
   const searchPosts = useMutation(api.post.search_posts);
   const allTags = useQuery(api.tag.get_tags, {});
   const [aiProvidedTags, setAiProvidedTags] = useState<Record<string, number>>({});
-  const [year, setYear] = useState(2000);
+  const [year, setYear] = useState(currentYear);
   const [isAiSearchingLoading, setIsAiSearchingLoading] = useState(false);
   const sectionRef = useRef<HTMLElement | null>(null);
   const [posts, setPosts] = useState<any[]>([]);
@@ -171,6 +173,21 @@ export default function Home() {
                   {tag}
                 </Chip>
               ))}
+            </div>
+            <div className="mt-6 w-full max-w-md">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-zinc-600">Year: {year}</span>
+              </div>
+              <Slider
+                value={[year]}
+                onValueChange={(values) => setYear(values[0])}
+                min={1900}
+                max={currentYear}
+                step={1}
+                showLabels
+                minLabel={1900}
+                maxLabel={currentYear}
+              />
             </div>
           </div>
 
