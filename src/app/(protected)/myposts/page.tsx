@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import { ContentItem } from "~/components/content-item";
 import { Doc } from "../../../../convex/_generated/dataModel";
 import FileUploader from "~/components/fileuploader";
+import UploadForm from "~/components/uploadForm";
 
 
 type MediaType = "image" | "audio";
@@ -196,6 +197,55 @@ export default function MyPosts() {
     setMediaPreviewUrl("");
   }
 
+  async function handleUploadFormSubmit(formData: {
+    mediaFile: File | null;
+    mediaUrl: string;
+    mediaType: "image" | "audio" | "unknown";
+    postName: string;
+    year: number;
+    tags: string[];
+    description: string;
+  }) {
+    setFormError("");
+
+    const cleanTitle = formData.postName.trim();
+    if (!cleanTitle) {
+      setFormError("Please enter a post name.");
+      return;
+    }
+
+    if (!formData.mediaFile || !formData.mediaUrl) {
+      setFormError("Please upload a photo (jpeg/png) or audio (mp3/wav).");
+      return;
+    }
+
+    const subtitleFromTags =
+      formData.tags.length > 0
+        ? formData.tags
+            .slice(0, 3)
+            .map((t) => t[0].toUpperCase() + t.slice(1))
+            .join(" • ")
+        : "Tagged Post";
+
+    const mediaKind = formData.mediaType === "audio" ? "audio" : "image";
+
+    const newPost: Post = {
+      id: `p_${crypto.randomUUID()}`,
+      title: cleanTitle,
+      subtitle: subtitleFromTags,
+      year: Number.isFinite(formData.year) ? formData.year : currentYear,
+      tags: formData.tags,
+      description: formData.description.trim(),
+      mediaType: mediaKind,
+      mediaUrl: formData.mediaUrl,
+    };
+
+    setPosts((prev) => [newPost, ...prev]);
+
+    // Close modal and reset
+    setOpen(false);
+  }
+
   function openEditModal(post: Post) {
     setEditError("");
     setEditId(post.id);
@@ -357,135 +407,13 @@ export default function MyPosts() {
           />
 
           {/* dialog */}
-          <div className="relative w-full max-w-lg rounded-3xl border border-zinc-200 bg-white p-6 shadow-xl">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold">Add New Post</h2>
-                <p className="mt-1 text-sm text-zinc-600">
-                  Upload media + add name, year, tags, and a description.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={closeModal}
-                className="rounded-full border border-zinc-200 px-3 py-1 text-sm text-zinc-700 hover:bg-zinc-50"
-              >
-                Close
-              </button>
-            </div>
-
-            <form onSubmit={handleCreatePost} className="mt-5 grid gap-4">
-              {/* Media upload */}
-              <div>
-                <label className="text-sm font-medium">Media (photo or audio)</label>
-                <p className="mt-1 text-xs text-zinc-500">
-                  Photos: .jpeg/.jpg/.png • Audio: .mp3/.wav
-                </p>
-
-                <input
-                  type="file"
-                  accept=".jpeg,.jpg,.png,.mp3,.wav,image/jpeg,image/png,audio/mpeg,audio/wav"
-                  onChange={(e) => handleMediaChange(e.target.files?.[0] ?? null)}
-                  className="mt-2 block w-full text-sm text-zinc-700 file:mr-4 file:rounded-full file:border file:border-zinc-200 file:bg-white file:px-4 file:py-2 file:text-sm file:font-medium file:text-zinc-900 hover:file:bg-zinc-50"
-                />
-
-                {/* Media preview */}
-                {mediaPreviewUrl ? (
-                  <div className="mt-3 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50">
-                    {mediaType === "image" ? (
-                      <img
-                        src={mediaPreviewUrl}
-                        alt="Upload preview"
-                        className="h-48 w-full object-cover"
-                      />
-                    ) : (
-                      <div className="p-4">
-                        <div className="text-sm font-semibold text-zinc-700">🎧 Audio preview</div>
-                        <audio className="mt-2 w-full" controls src={mediaPreviewUrl} />
-                      </div>
-                    )}
-                  </div>
-                ) : null}
-              </div>
-
-              <div>
-                <label className="text-sm font-medium">Post name</label>
-                <input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Summer Hike"
-                  className="mt-2 h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium">Year</label>
-                <input
-                  value={year}
-                  onChange={(e) => setYear(Number(e.target.value))}
-                  type="number"
-                  min={1900}
-                  max={3000}
-                  className="mt-2 h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium">Tags</label>
-
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {tags.map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => removeTag(t)}
-                      className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs text-zinc-700 hover:bg-zinc-50"
-                      title="Click to remove"
-                    >
-                      #{t} <span className="text-zinc-400">×</span>
-                    </button>
-                  ))}
-                </div>
-
-                <input
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === ",") {
-                      e.preventDefault();
-                      addTag(tagInput);
-                      setTagInput("");
-                    }
-                  }}
-                  placeholder="Type a tag and press Enter (or comma)"
-                  className="mt-2 h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium">Description</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Write a short description..."
-                  className="mt-2 min-h-[110px] w-full resize-none rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-                />
-              </div>
-
-              {formError ? (
-                <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                  {formError}
-                </p>
-              ) : null}
-
-              <button
-                type="submit"
-                className="h-11 rounded-xl bg-gradient-to-r from-blue-600 via-pink-600 to-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
-              >
-                Create Post
-              </button>
-            </form>
+          <div className="relative w-full max-w-2xl">
+            <UploadForm
+              onSubmit={handleUploadFormSubmit}
+              error={formError}
+              submitButtonText="Create Post"
+              onClose={closeModal}
+            />
           </div>
         </div>
       ) : null}
