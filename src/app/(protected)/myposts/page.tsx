@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+
+
 // src/app/myposts/page.tsx
 import { useMemo, useState } from "react";
 
@@ -219,6 +222,15 @@ export default function MyPosts() {
 
   return (
     <main className="min-h-screen">
+
+            <div className="mx-auto w-full max-w-6xl pb-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-900 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50"
+        >
+          ← Back to Home
+        </Link>
+      </div>
       <div className="mx-auto w-full max-w-6xl">
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           {/* Left: Post cards */}
