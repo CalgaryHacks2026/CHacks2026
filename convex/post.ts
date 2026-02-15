@@ -95,16 +95,18 @@ export const update_post = mutation({
 export const search_posts = query({
   args: {
     query: v.string(),
-    year: v.number(),
     tags: v.record(v.id("tags"), v.number()),
+    year: v.optional(v.number()), // ✅ add (optional)
   },
-  handler: async (ctx, { query, year, tags }) => {
+  handler: async (ctx, { query, tags, year }) => {
     const weights = tags;
     const allPosts = await ctx.db.query("posts").collect();
-    // TODO: implement in relation to python ai server code
-    const matching = allPosts.filter((post) =>
-      post.tags.some((tag) => weights[tag] !== undefined),
-    );
+
+    const matching = allPosts.filter((post) => {
+      const tagMatch = post.tags.some((tag) => weights[tag] !== undefined);
+      const yearMatch = year === undefined || post.year === year; // ✅ add
+      return tagMatch && yearMatch;
+    });
 
     matching.sort((a, b) => {
       const scoreA = Math.max(...a.tags.map((t) => weights[t] ?? 0), 0);
@@ -112,7 +114,6 @@ export const search_posts = query({
       return scoreB - scoreA;
     });
 
-    // Return posts with URLs
     return Promise.all(
       matching.map(async (post) => ({
         ...post,
@@ -121,6 +122,7 @@ export const search_posts = query({
     );
   },
 });
+
 
 export const get_post_for_user = query({
   args: {},
