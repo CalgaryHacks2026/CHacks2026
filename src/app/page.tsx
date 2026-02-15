@@ -39,8 +39,22 @@ export default function Home() {
 
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900">
-      <main className="mx-auto flex w-full flex-col items-center px-6 pt-16 text-center">
+    <div className="relative min-h-screen bg-white text-zinc-900 overflow-hidden">
+      {/* Blurred background elements */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        {/* Top-left blob */}
+        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-gradient-to-br from-purple-400/40 to-pink-400/40 blur-3xl" />
+        {/* Top-right blob */}
+        <div className="absolute -right-32 -top-16 h-80 w-80 rounded-full bg-gradient-to-bl from-blue-400/30 to-cyan-400/30 blur-3xl" />
+        {/* Center blob */}
+        <div className="absolute left-1/2 top-1/3 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-indigo-300/20 via-purple-300/20 to-pink-300/20 blur-3xl" />
+        {/* Bottom-left blob */}
+        <div className="absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-gradient-to-tr from-emerald-400/25 to-teal-400/25 blur-3xl" />
+        {/* Bottom-right blob */}
+        <div className="absolute -bottom-48 -right-24 h-96 w-96 rounded-full bg-gradient-to-tl from-orange-300/25 to-amber-300/25 blur-3xl" />
+      </div>
+
+      <main className="relative z-10 mx-auto flex w-full flex-col items-center px-6 pt-16 text-center">
         {/* Search */}
         <div className="mt-8 w-full justify-center items-center flex flex-col">
           <div className="max-w-3xl w-full flex flex-col items-center gap-2 my-72">
