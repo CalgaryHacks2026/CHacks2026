@@ -12,22 +12,37 @@ export const get_posts = query({
 
 export const create_post = mutation({
   args: {
-    _id: v.id("posts"),
     title: v.string(),
     description: v.string(),
     setOfUserTags: v.array(v.id("tags")),
-    userId: v.id("users"),
     contentUrl: v.optional(v.string())
   },
-  handler: async (ctx, {title, description, setOfUserTags, userId, contentUrl}) => {
+  handler: async (ctx, {title, description, setOfUserTags, contentUrl}) => {
     const now = Date.now();
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Not authorized");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
+      )
+      .unique();
+
+    if (!user) {
+      throw new Error("Not authorized");
+    }
+
     return await ctx.db.insert("posts", {
       title,
       description,
       creationDate: now,
       updatedDate: now,
       tags: setOfUserTags,
-      user: userId,
+      user: user._id,
       contentUrl
     });
   }
@@ -81,6 +96,29 @@ export const search_posts = query({
   }
 });
 
+export const get_post_for_user = query({
+  args: {},
+  handler: async (ctx, args) => {
+    const loggedInUser = await ctx.auth.getUserIdentity();
+    if (!loggedInUser) {
+      throw new Error("Not authorized");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", loggedInUser.tokenIdentifier),
+      )
+      .unique();
+
+    if (!user) {
+      throw new Error("Not authorized");
+    }
+
+    const posts = await ctx.db.query("posts").collect();
+    return posts.filter(post => post.user === user._id);
+  }
+});
 
 export const postsByWeightedTagsFromHttp = action({
   args: {
