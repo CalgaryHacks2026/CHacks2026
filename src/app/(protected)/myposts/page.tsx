@@ -361,7 +361,16 @@ export default function MyPosts() {
         >
           ← Back to Home
         </Link>
+
+          <button
+    type="button"
+    onClick={() => setOpen(true)}
+    className="inline-flex h-10 items-center rounded-full bg-gradient-to-r from-blue-600 via-pink-600 to-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
+  >
+    Upload Post
+  </button>
       </div>
+      
       <div className="mx-auto w-full max-w-6xl">
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           {/* Left: Post cards */}
@@ -701,7 +710,6 @@ backgroundPosition: "center",
           </div>
         </div>
       ) : null}
-
     </main>
   );
 }
