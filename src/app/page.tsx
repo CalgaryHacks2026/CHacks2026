@@ -12,7 +12,7 @@ const SUGGESTED = ["cars", "chairs", "bikes"] as const;
 
 export default function Home() {
   const [query, setQuery] = useState("");
-  const posts = useQuery(api.post.getPosts, {})
+  const posts = useQuery(api.post.get_posts, {})
 
 
   return (
