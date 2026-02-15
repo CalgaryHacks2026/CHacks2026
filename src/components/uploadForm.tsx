@@ -156,13 +156,16 @@ export default function UploadForm({
             </div>
           </div>
 
-          <Image
-            alt="preview"
-            width={300}
-            height={300}
-            src={previewUrl}
-            className="w-full rounded-xl my-4"
-          />
+          {
+            previewUrl &&
+              <Image
+                alt="preview"
+                width={300}
+                height={300}
+                src={previewUrl}
+                className="w-full rounded-xl my-4"
+              />
+          }
 
           <div className="space-y-6">
             {/* Post Name */}
@@ -278,7 +281,7 @@ export default function UploadForm({
                 <Button
                   size="icon-lg"
                   variant="ghost"
-                  onClick={() => callAiServerForImageTags(availableTagNames, "https://http.cat/images/418.jpg")}
+                  onClick={() => callAiServerForImageTags(availableTagNames, "https://http.dog/401.jpg")}
                   disabled={aiTagsLoading}
                 >
                   { aiTagsLoading ? <Loader2Icon className="animate-spin" /> : <SparklesIcon /> }
