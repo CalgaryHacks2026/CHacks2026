@@ -5,6 +5,8 @@ import Link from "next/link";
 
 // src/app/myposts/page.tsx
 import { useMemo, useState } from "react";
+import { ContentItem } from "~/components/content-item";
+import { Doc } from "../../../../convex/_generated/dataModel";
 
 type MediaType = "image" | "audio";
 
@@ -84,9 +86,8 @@ export default function MyPosts() {
     []
   );
 
-  const [posts, setPosts] = useState<Post[]>(seedPosts);
-  const [activeId, setActiveId] = useState();
-  const active = posts.find((p) => p.id === activeId) ?? posts[0];
+  const [posts, setPosts] = useState<Doc<"posts">[]>();
+  const [activeId, setActiveId] = useState<string>();
 
     // Edit modal state
   const [editOpen, setEditOpen] = useState(false);
@@ -330,22 +331,22 @@ export default function MyPosts() {
     }
 
     // Update post in-place
-    setPosts((prev) =>
-      prev.map((p) => {
-        if (p.id !== editId) return p;
+    // setPosts((prev) =>
+    //   prev.map((p) => {
+    //     if (p.id !== editId) return p;
 
-        return {
-          ...p,
-          title: cleanTitle,
-          year: nextYear,
-          description: editDescription.trim(),
-          tags: editTags,
-          // if user selected a new file, use preview url; otherwise keep old
-          mediaType: editMediaFile ? editMediaType : p.mediaType,
-          mediaUrl: editMediaFile ? editMediaPreviewUrl : p.mediaUrl,
-        };
-      })
-    );
+    //     return {
+    //       ...p,
+    //       title: cleanTitle,
+    //       year: nextYear,
+    //       description: editDescription.trim(),
+    //       tags: editTags,
+    //       // if user selected a new file, use preview url; otherwise keep old
+    //       mediaType: editMediaFile ? editMediaType : p.mediaType,
+    //       mediaUrl: editMediaFile ? editMediaPreviewUrl : p.mediaUrl,
+    //     };
+    //   })
+    // );
 
     closeEditModal();
   }
@@ -370,26 +371,14 @@ export default function MyPosts() {
     Upload Post
   </button>
       </div>
-      
+
    <div className="mx-auto w-full max-w-6xl">
   {/* Center the whole grid */}
   <div className="mt-8 flex justify-center">
     {/* Center the items inside + add spacing */}
     <section className="flex flex-wrap justify-center gap-6">
-      {posts.map((p) => (
-        <button
-          key={p.id}
-          className="bg-card min-h-96 min-w-64 border hover:shadow-2xl hover:scale-125 transition-all duration-300 ease-out cursor-pointer hover:before:opacity-65 relative hover:before:absolute hover:before:top-0 hover:before:left-0 hover:before:w-full hover:before:h-full z-0 hover:z-50 hover:before:bg-black"
-          style={{
-            backgroundImage: `url(${p.mediaUrl})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            // make tiles bigger without touching your hover/effect classes
-            minWidth: "22rem",
-            minHeight: "26rem",
-          }}
-          onClick={() => openEditModal(p)}
-        />
+      {posts?.map((p) => (
+        <ContentItem post={p} openDetailedModalAction={openEditModal} />
       ))}
     </section>
   </div>

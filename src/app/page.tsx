@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { ContentItem } from "~/components/content-item";
 
 const SPECIFC_LOGO_URL =
   "https://raw.githubusercontent.com/CalgaryHacks2026/Image_Hosting/refs/heads/main/93f59d4e-c49f-40b1-8e67-90f8c75ffb64.png?token=GHSAT0AAAAAADSN554THCXE54TRMPSQUQNY2MRDIBQ";
@@ -34,7 +35,7 @@ export default function Home() {
       </header>
 
       {/* Center content */}
-      <main className="mx-auto flex w-full max-w-3xl flex-col items-center px-6 pt-16 text-center">
+      <main className="mx-auto flex w-full flex-col items-center px-6 pt-16 text-center">
         {/* Accent dots */}
         <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 shadow-sm">
           <span className="h-2 w-2 rounded-full bg-blue-500" />
@@ -111,6 +112,22 @@ export default function Home() {
         <p className="mt-8 max-w-xl text-sm leading-6 text-zinc-500">
           Tip: tags can be anything — people, places, projects, vibes.
         </p>
+
+        {/*Section for loading posts area - Masonry Grid*/}
+        <section className="mt-12 w-full max-w-6xl px-4">
+          <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5">
+            {Array.from({ length:32 }).map((_, i) => {
+              // Vary heights for masonry effect
+              const heights = ['h-48', 'h-56', 'h-64', 'h-72', 'h-80', 'h-96'];
+              const heightClass = heights[heights.length * Math.random() >> 0];
+              return (
+                <div key={i} className={`mb-4 break-inside-avoid ${heightClass}`}>
+                  <ContentItem isSkeleton index={i} />
+                </div>
+              );
+            })}
+          </div>
+        </section>
       </main>
     </div>
   );
