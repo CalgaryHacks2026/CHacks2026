@@ -150,19 +150,18 @@ export default function FileUploader(props: {
           </div>
           <DropzoneFileList>
             {dz.fileStatuses.length > 0 && (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {dz.fileStatuses.map((file) => {
-                    const f = file as FileStatus<UploadResult, string>;
-                    const isImg = f.file.type.startsWith("image/");
-                    const previewUrl =
-                      f.status === "success" ? f.result.url : "";
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {dz.fileStatuses.map((file) => {
+                  const f = file as FileStatus<UploadResult, string>;
+                  const isImg = f.file.type.startsWith("image/");
+                  const previewUrl = f.status === "success" ? f.result.url : "";
 
-                    return (
-                      <DropzoneFileListItem key={file.id} file={file}>
-                        <UploadForm />
-                      </DropzoneFileListItem>
-                    );
-                  })}
+                  return (
+                    <DropzoneFileListItem key={file.id} file={file}>
+                      <UploadForm />
+                    </DropzoneFileListItem>
+                  );
+                })}
               </div>
             )}
           </DropzoneFileList>
