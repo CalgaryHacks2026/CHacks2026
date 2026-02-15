@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
+import { dark, shadcn } from "@clerk/themes";
 import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
+  ClerkProvider
 } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -33,7 +29,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider appearance={{
+      theme: [dark, shadcn]
+    }}>
       <ConvexClientProvider>
         <html lang="en" className="dark">
           <body
