@@ -362,21 +362,24 @@ export default function MyPosts() {
     <main className="min-h-screen">
 
             <div className="mx-auto w-full max-w-6xl pb-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-900 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50"
-        >
-          ← Back to Home
-        </Link>
+  <div className="flex items-center">
+    <Link
+      href="/"
+      className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-900 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50"
+    >
+      ← Back to Home
+    </Link>
 
-          <button
-    type="button"
-    onClick={() => setOpen(true)}
-    className="inline-flex h-10 items-center rounded-full bg-gradient-to-r from-blue-600 via-pink-600 to-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
-  >
-    Upload Post
-  </button>
-      </div>
+    <button
+      type="button"
+      onClick={() => setOpen(true)}
+      className="ml-auto inline-flex h-10 items-center rounded-full bg-gradient-to-r from-blue-600 via-pink-600 to-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
+    >
+      Upload Post
+    </button>
+  </div>
+</div>
+
 
    <div className="mx-auto w-full max-w-6xl">
   {/* Center the whole grid */}
