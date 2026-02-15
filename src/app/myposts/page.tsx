@@ -75,7 +75,7 @@ export default function MyPosts() {
         <div className="flex items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">My Page</h1>
-            <p className="mt-2 text-zinc-600">This will show my collages.</p>
+            <p className="mt-2 text-zinc-600">A list of my collages.</p>
           </div>
         </div>
 
