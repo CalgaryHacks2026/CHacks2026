@@ -95,9 +95,10 @@ export const update_post = mutation({
 export const search_posts = query({
   args: {
     query: v.string(),
+    year: v.number(),
     tags: v.record(v.id("tags"), v.number()),
   },
-  handler: async (ctx, { query, tags }) => {
+  handler: async (ctx, { query, year, tags }) => {
     const weights = tags;
     const allPosts = await ctx.db.query("posts").collect();
     // TODO: implement in relation to python ai server code

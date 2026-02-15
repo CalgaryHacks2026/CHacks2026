@@ -9,6 +9,7 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { SearchIcon } from "lucide-react";
 import { Chip } from "~/components/ui/chip";
+import axios from "axios";
 
 const SUGGESTED = [
   "cars",
@@ -33,8 +34,21 @@ const SUGGESTED = [
 export default function Home() {
   const [query, setQuery] = useState("");
   const posts = useQuery(api.post.get_posts, {});
+  const allTags = useQuery(api.tag.get_tags, {});
+  const [year, setYear] = useState(2000);
   const sectionRef = useRef<HTMLElement | null>(null);
 
+  const getAiTagsFromServer = async () => {
+    const {status, data} = await axios.post("https://ch26-ai.alahdal.ca/search-tags", {
+      text: query,
+      tags: allTags?.map((tag) => tag.name),
+      year
+    });
+
+    if (status !== 200) {
+      // throw error and cancel loading
+    }
+  }
 
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
@@ -78,6 +92,7 @@ export default function Home() {
                     behavior: "smooth",
                     block: "start",
                   });
+                  // initiate search onto ai server to grab additional tags
                 }}
               >
                 <SearchIcon /> Search
