@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Fuse from "fuse.js";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { createPortal } from "react-dom";
@@ -42,6 +43,25 @@ export default function UploadForm({
     () => availableTags?.map((t) => t.name) ?? [],
     [availableTags]
   );
+
+  // Fuse.js fuzzy search instance
+  const fuse = React.useMemo(
+    () =>
+      new Fuse(availableTagNames, {
+        threshold: 0.4,
+        includeScore: true,
+      }),
+    [availableTagNames]
+  );
+
+  // Filtered tags based on fuzzy search
+  const filteredTagNames = React.useMemo(() => {
+    const trimmedInput = tagInput.trim().toLowerCase();
+    if (!trimmedInput) return availableTagNames;
+
+    const results = fuse.search(trimmedInput);
+    return results.map((result) => result.item);
+  }, [tagInput, fuse, availableTagNames]);
 
   const handleTagsChange = async (newTags: string[]) => {
     // Find any new tags that don't exist in the database
@@ -171,7 +191,11 @@ export default function UploadForm({
                   <ComboboxChipsInput
                     placeholder="Select tags"
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && tagInput.trim().length > 0) {
+                      if (
+                        e.key === "Enter" &&
+                        tagInput.trim().length > 0 &&
+                        filteredTagNames.length === 0
+                      ) {
                         e.preventDefault();
                         handleCreateTag();
                       }
@@ -188,7 +212,7 @@ export default function UploadForm({
                     </ComboboxEmpty>
                   )}
                   <ComboboxList>
-                    {availableTagNames.map((item) => (
+                    {filteredTagNames.map((item) => (
                       <ComboboxItem key={item} value={item}>
                         {item}
                       </ComboboxItem>
