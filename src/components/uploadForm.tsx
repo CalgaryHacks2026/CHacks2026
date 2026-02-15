@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { createPortal } from "react-dom";
 import { XIcon } from "lucide-react";
 import Image from "next/image";
+import { Textarea } from "./ui/textarea";
 
 type UploaderValue = {
   file: File | null;
@@ -157,11 +158,11 @@ export default function UploadForm({
               <label className="mb-2 block text-lg font-semibold">
                 Description
               </label>
-              <textarea
+              <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Write a short description..."
-                className="min-h-[140px] w-full resize-none rounded-xl border px-4 py-3 text-base outline-none transition focus:ring-4 "
+                rows={5}
               />
             </div>
 
