@@ -39,6 +39,7 @@ export default function Home() {
   const [year, setYear] = useState(2000);
   const [isAiSearchingLoading, setIsAiSearchingLoading] = useState(false);
   const sectionRef = useRef<HTMLElement | null>(null);
+  const [posts, setPosts] = useState<any[]>([]);
 
   const getAiTagsFromServer = async () => {
     setIsAiSearchingLoading(true);
@@ -68,12 +69,13 @@ export default function Home() {
   }
 
   const handleMutate = async () => {
-    const posts = await searchPosts({
+    const results = await searchPosts({
       query,
       tags: aiProvidedTags,
       year
     });
-    console.log("posties", posts);
+    console.log("posties", results);
+    setPosts(results ?? []);
   }
 
   useEffect(() => {
@@ -148,20 +150,33 @@ export default function Home() {
         {/*Section for loading posts area - Masonry Grid*/}
         <section ref={sectionRef} className="mt-12 w-full max-w-6xl px-4 scroll-mt-70">
           <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 group">
-            {Array.from({ length: 32 }).map((_, i) => {
-              // Vary heights for masonry effect
-              const heights = ["h-48", "h-56", "h-64", "h-72", "h-80", "h-96"];
-              const heightClass =
-                heights[(heights.length * Math.random()) >> 0];
-              return (
-                <div
-                  key={i}
-                  className={`mb-4 break-inside-avoid ${heightClass}`}
-                >
-                  <ContentItem isSkeleton index={i} />
-                </div>
-              );
-            })}
+            {posts.length >= 1 ? (
+              posts.map((post, i) => {
+                const heights = ["h-48", "h-56", "h-64", "h-72", "h-80", "h-96"];
+                const heightClass = heights[i % heights.length];
+                return (
+                  <div
+                    key={post._id ?? i}
+                    className={`mb-4 break-inside-avoid ${heightClass}`}
+                  >
+                    <ContentItem index={i} post={post} />
+                  </div>
+                );
+              })
+            ) : (
+              Array.from({ length: 32 }).map((_, i) => {
+                const heights = ["h-48", "h-56", "h-64", "h-72", "h-80", "h-96"];
+                const heightClass = heights[i % heights.length];
+                return (
+                  <div
+                    key={i}
+                    className={`mb-4 break-inside-avoid ${heightClass}`}
+                  >
+                    <ContentItem isSkeleton index={i} />
+                  </div>
+                );
+              })
+            )}
           </div>
         </section>
       </main>
