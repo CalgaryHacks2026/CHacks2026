@@ -10,6 +10,7 @@ export default defineSchema({
     tags: v.array(v.id("tags")),
     user: v.id("users"),
     storageId: v.optional(v.id("_storage")),
+    year: v.number()
   }),
   users: defineTable({
     name: v.string(),
