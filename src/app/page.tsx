@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { ContentItem } from "~/components/content-item";
@@ -40,6 +40,35 @@ export default function Home() {
   const [isAiSearchingLoading, setIsAiSearchingLoading] = useState(false);
   const sectionRef = useRef<HTMLElement | null>(null);
   const [posts, setPosts] = useState<any[]>([]);
+
+  // Modal state (what was clicked)
+  const [selectedPost, setSelectedPost] = useState<any>(null);
+
+  // Build a quick lookup: tagId -> tagName
+  const tagNameById = useMemo(() => {
+    const m = new Map<string, string>();
+    (allTags ?? []).forEach((t) => m.set(String(t._id), t.name));
+    return m;
+  }, [allTags]);
+
+  // Tags on the post might be stored as IDs in setOfUserTags
+  const selectedTagNames = useMemo(() => {
+    if (!selectedPost) return [];
+    const ids: unknown[] =
+      selectedPost.setOfUserTags ?? selectedPost.tags ?? selectedPost.tagIds ?? [];
+    if (!Array.isArray(ids)) return [];
+    return ids.map((id) => tagNameById.get(String(id)) ?? String(id));
+  }, [selectedPost, tagNameById]);
+
+  // ESC to close modal
+  useEffect(() => {
+    if (!selectedPost) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedPost(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [selectedPost]);
 
   const getAiTagsFromServer = async () => {
     setIsAiSearchingLoading(true);
@@ -157,9 +186,16 @@ export default function Home() {
                 return (
                   <div
                     key={post._id ?? i}
-                    className={`mb-4 break-inside-avoid ${heightClass}`}
+                    className={`mb-4 break-inside-avoid ${heightClass} cursor-pointer`}
+                    onClick={() => setSelectedPost(post)}
                   >
-                    <ContentItem index={i} post={post} />
+                    <ContentItem
+                      index={i}
+                      post={post}
+                      isSelected={selectedPost === post}
+                      deselect={() => setSelectedPost(null)}
+                      selectedTagNames={selectedTagNames}
+                    />
                   </div>
                 );
               })

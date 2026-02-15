@@ -90,90 +90,12 @@ export default function MyPosts() {
                 className={`mb-4 break-inside-avoid ${heightClass} cursor-pointer`}
                 onClick={() => setSelectedPost(post)}
               >
-                <ContentItem index={i} post={post} />
+                <ContentItem index={i} post={post} isSelected={selectedPost === post} deselect={() => setSelectedPost(null)} selectedTagNames={selectedTagNames} />
               </div>
             );
           })}
         </div>
       </section>
-
-      {/* VIEW MODAL */}
-      {selectedPost ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-          onClick={() => setSelectedPost(null)}
-        >
-          <div
-            className="relative w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/70 shadow-2xl backdrop-blur"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setSelectedPost(null)}
-              className="absolute right-4 top-4 z-10 rounded-full bg-white/10 px-3 py-1 text-sm text-white hover:bg-white/20"
-            >
-              Close
-            </button>
-
-            <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr]">
-              {/* LEFT: Image */}
-              <div className="bg-black/30 p-4">
-                {modalSrc ? (
-                  <img
-                    src={modalSrc}
-                    alt={selectedPost.title ?? "Post"}
-                    className="max-h-[85vh] w-full object-contain"
-                  />
-                ) : (
-                  <div className="flex h-[50vh] items-center justify-center text-white/70">
-                    No image URL found on this post yet.
-                  </div>
-                )}
-              </div>
-
-              {/* RIGHT: Metadata */}
-              <div className="p-6 text-white">
-                <h2 className="text-xl font-semibold">
-                  {selectedPost.title ?? "Untitled"}
-                </h2>
-
-                {/* YEAR (only shows if it's actually saved in Convex) */}
-                <div className="mt-3 text-sm text-white/80">
-                  <span className="text-white/60">Year:</span>{" "}
-                  {selectedPost.year ?? "—"}
-                </div>
-
-                {/* TAGS */}
-                <div className="mt-4">
-                  <div className="text-sm text-white/60">Tags</div>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {selectedTagNames.length ? (
-                      selectedTagNames.map((t) => (
-                        <span
-                          key={t}
-                          className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/90"
-                        >
-                          #{t}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-sm text-white/70">No tags</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* DESCRIPTION */}
-                <div className="mt-5">
-                  <div className="text-sm text-white/60">Description</div>
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-white/90">
-                    {selectedPost.description?.trim() ? selectedPost.description : "—"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </main>
   );
 }
