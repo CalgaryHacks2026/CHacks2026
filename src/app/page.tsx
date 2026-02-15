@@ -200,7 +200,20 @@ export default function Home() {
         {/*Section for loading posts area - Masonry Grid*/}
         <section ref={sectionRef} className="mt-12 w-full max-w-6xl px-4 scroll-mt-[70px]">
           <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 group">
-            {posts.length >= 1 ? (
+            {isAiSearchingLoading || !hasSearched ? (
+              Array.from({ length: 32 }).map((_, i) => {
+                const heights = ["h-48", "h-56", "h-64", "h-72", "h-80", "h-96"];
+                const heightClass = heights[i % heights.length];
+                return (
+                  <div
+                    key={i}
+                    className={`mb-4 break-inside-avoid ${heightClass}`}
+                  >
+                    <ContentItem isSkeleton index={i} />
+                  </div>
+                );
+              })
+            ) : posts.length >= 1 ? (
               posts.map((post, i) => {
                 const heights = ["h-48", "h-56", "h-64", "h-72", "h-80", "h-96"];
                 const heightClass = heights[i % heights.length];
@@ -217,19 +230,6 @@ export default function Home() {
                       deselect={() => setSelectedPost(null)}
                       selectedTagNames={selectedTagNames}
                     />
-                  </div>
-                );
-              })
-            ) : !hasSearched ? (
-              Array.from({ length: 32 }).map((_, i) => {
-                const heights = ["h-48", "h-56", "h-64", "h-72", "h-80", "h-96"];
-                const heightClass = heights[i % heights.length];
-                return (
-                  <div
-                    key={i}
-                    className={`mb-4 break-inside-avoid ${heightClass}`}
-                  >
-                    <ContentItem isSkeleton index={i} />
                   </div>
                 );
               })
