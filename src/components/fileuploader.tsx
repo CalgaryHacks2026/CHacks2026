@@ -159,9 +159,12 @@ export default function FileUploader(props: {
 
                   return (
                     <DropzoneFileListItem key={file.id} file={file}>
-                      <UploadForm onCloseAction={() => {
-                        document.getElementById("remove-file")?.click();
-                      }} previewUrl={previewUrl} />
+                      <UploadForm
+                        onCloseAction={() => {
+                          document.getElementById("remove-file")?.click();
+                        }}
+                        previewUrl={previewUrl}
+                      />
                       <DropzoneRemoveFile id="remove-file" className="hidden" />
                     </DropzoneFileListItem>
                   );

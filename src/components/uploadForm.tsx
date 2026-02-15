@@ -1,27 +1,36 @@
 "use client";
 
 import * as React from "react";
-import FileUploader from "./fileuploader";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { createPortal } from "react-dom";
 import { XIcon } from "lucide-react";
 import Image from "next/image";
 import { Textarea } from "./ui/textarea";
-
-type UploaderValue = {
-  file: File | null;
-  url: string;
-  kind: "image" | "audio" | "unknown";
-};
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import {
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxValue,
+} from "./ui/combobox";
 
 export default function UploadForm({
   onCloseAction,
   previewUrl,
 }: {
-    onCloseAction?: () => void;
-    previewUrl: string;
+  onCloseAction?: () => void;
+  previewUrl: string;
 }) {
+  const createTag = useMutation(api.tag.create_tag);
+  const availableTags = useQuery(api.tag.get_tags);
+
   const [postName, setPostName] = React.useState("");
   const [year, setYear] = React.useState(new Date().getFullYear());
   const [tags, setTags] = React.useState<string[]>([]);
@@ -35,31 +44,7 @@ export default function UploadForm({
     }
   };
 
-  const handleRemoveTag = (tag: string) => {
-    setTags(tags.filter((t) => t !== tag));
-  };
-
-  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      handleAddTag(tagInput);
-      setTagInput("");
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // await onSubmit({
-    //   mediaFile,
-    //   mediaUrl,
-    //   mediaType,
-    //   postName,
-    //   year,
-    //   tags,
-    //   description,
-    // });
-  };
+  const handleSubmit = async () => {};
 
   return createPortal(
     <div className="bg-background/65 backdrop-blur-md fixed top-0 left-0 w-screen h-screen flex flex-col justify-center items-center">
@@ -80,7 +65,13 @@ export default function UploadForm({
             </div>
           </div>
 
-          <Image alt="preview" width={300} height={300} src={previewUrl} className="w-full rounded-xl my-4" />
+          <Image
+            alt="preview"
+            width={300}
+            height={300}
+            src={previewUrl}
+            className="w-full rounded-xl my-4"
+          />
 
           <div className="space-y-6">
             {/* Post Name */}
@@ -121,37 +112,36 @@ export default function UploadForm({
             </div>
 
             {/* Tags */}
-            {/*TODO: add tags */}
-            {/*<div>
-            <label className="mb-2 block text-lg font-semibold">
-              Tags
-            </label>
-
-            {tags.length > 0 && (
-              <div className="mb-3 flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => handleRemoveTag(tag)}
-                    className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm transition"
-                    title="Click to remove"
-                  >
-                    #{tag} <span className="text-xs">×</span>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <Input
-              type="text"
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={handleTagKeyDown}
-              placeholder="Type a tag and press Enter (or comma)"
-              className="h-12 text-base focus:border-blue-400"
-            />
-          </div>*/}
+            <div>
+              <label
+                htmlFor="tags"
+                className="mb-2 block text-lg font-semibold"
+              >
+                Tags
+              </label>
+              <Combobox multiple value={tags} onValueChange={setTags}>
+                <ComboboxChips>
+                  <ComboboxValue>
+                    {tags.map((item) => (
+                      <ComboboxChip key={item}>{item}</ComboboxChip>
+                    ))}
+                  </ComboboxValue>
+                  <ComboboxChipsInput placeholder="Select tags" />
+                </ComboboxChips>
+                <ComboboxContent>
+                  <ComboboxEmpty>
+                    Add {} as a tag
+                  </ComboboxEmpty>
+                  <ComboboxList>
+                    {(item) => (
+                      <ComboboxItem key={item} value={item}>
+                        {item}
+                      </ComboboxItem>
+                    )}
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
+            </div>
 
             {/* Description */}
             <div>
