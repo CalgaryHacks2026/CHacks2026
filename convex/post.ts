@@ -1,9 +1,8 @@
-import { mutation, query } from "./_generated/server"
-import { v } from "convex/values"
+import {mutation, query} from "./_generated/server"
+import {v} from "convex/values"
 
 export const get_posts = query({
-  args: {
-  },
+  args: {},
   handler: async (ctx, args) => {
     return await ctx.db.query("posts").collect();
   }
@@ -15,8 +14,9 @@ export const create_post = mutation({
     description: v.string(),
     set_of_user_tags: v.array(v.id("tags")),
     userId: v.id("users"),
+    content_url: v.optional(v.string())
   },
-  handler: async (ctx, { title, description, set_of_user_tags, userId }) => {
+  handler: async (ctx, {title, description, set_of_user_tags, userId, content_url}) => {
     const now = Date.now();
     return await ctx.db.insert("posts", {
       title,
@@ -25,6 +25,7 @@ export const create_post = mutation({
       updatedDate: now,
       tags: set_of_user_tags,
       user: userId,
+      content_url
     });
   }
 });
