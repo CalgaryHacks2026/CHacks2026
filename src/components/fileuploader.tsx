@@ -7,6 +7,7 @@ import {
   DropzoneFileList,
   DropzoneFileListItem,
   DropzoneMessage,
+  DropzoneRemoveFile,
   DropzoneTrigger,
   useDropzone,
   type FileStatus,
@@ -140,7 +141,7 @@ export default function FileUploader(props: {
             <div className="mt-4">
               <DropzoneTrigger
                 id="dz-trigger"
-                className="opacity-0 rounded-full bg-white/10 px-5 py-2 text-sm font-semibold text-zinc-100 hover:bg-white/15"
+                className="hidden rounded-full bg-white/10 px-5 py-2 text-sm font-semibold text-zinc-100 hover:bg-white/15"
               >
                 Choose files
               </DropzoneTrigger>
@@ -149,7 +150,7 @@ export default function FileUploader(props: {
             <DropzoneMessage className="mt-3 text-red-300" />
           </div>
           <DropzoneFileList>
-            {dz.fileStatuses.length > 0 && (
+            {dz.fileStatuses.length === 1 && (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {dz.fileStatuses.map((file) => {
                   const f = file as FileStatus<UploadResult, string>;
@@ -158,7 +159,10 @@ export default function FileUploader(props: {
 
                   return (
                     <DropzoneFileListItem key={file.id} file={file}>
-                      <UploadForm />
+                      <UploadForm onCloseAction={() => {
+                        document.getElementById("remove-file")?.click();
+                      }} previewUrl={previewUrl} />
+                      <DropzoneRemoveFile id="remove-file" className="hidden" />
                     </DropzoneFileListItem>
                   );
                 })}

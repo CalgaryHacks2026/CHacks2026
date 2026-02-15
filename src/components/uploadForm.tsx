@@ -6,6 +6,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { createPortal } from "react-dom";
 import { XIcon } from "lucide-react";
+import Image from "next/image";
 
 type UploaderValue = {
   file: File | null;
@@ -15,8 +16,10 @@ type UploaderValue = {
 
 export default function UploadForm({
   onCloseAction,
+  previewUrl,
 }: {
-  onCloseAction?: () => void;
+    onCloseAction?: () => void;
+    previewUrl: string;
 }) {
   const [postName, setPostName] = React.useState("");
   const [year, setYear] = React.useState(new Date().getFullYear());
@@ -72,14 +75,11 @@ export default function UploadForm({
           {/* Header */}
           <div className="mb-2 flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold">Upload a Memora</h1>
+              <h2 className="text-xl font-bold">Upload a Memora</h2>
             </div>
           </div>
 
-          {/* ✅ either remove this, or close it properly */}
-          <p className="mb-8 text-lg">
-            {/* optional helper text here, or just leave it empty */}
-          </p>
+          <Image alt="preview" width={300} height={300} src={previewUrl} className="w-full rounded-xl my-4" />
 
           <div className="space-y-6">
             {/* Post Name */}
