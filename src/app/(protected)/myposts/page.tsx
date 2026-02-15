@@ -12,7 +12,6 @@ import { DropzoneFileListItem } from "~/components/ui/dropzone";
 export default function MyPosts() {
   const { isDebug } = useSettingsContext();
   const posts = useQuery(api.post.get_post_for_user, {});
-  const createPost = useMutation(api.post.create_post);
 
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaUrl, setMediaUrl] = useState("");
@@ -23,23 +22,6 @@ export default function MyPosts() {
   return (
     <main className="min-h-screen w-full flex flex-col items-center justify-center">
       {isDebug && <pre>{JSON.stringify(posts, null, 2)}</pre>}
-      {isDebug && (
-        <>
-          <Button
-            onClick={() => {
-              createPost({
-                title: Math.random().toString(),
-                description: "Randomized Post Description",
-                setOfUserTags: [],
-                contentUrl:
-                  "https://images.unsplash.com/photo-1769097137026-c482044ca0fb?q=80&w=1295&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-              });
-            }}
-          >
-            Add Randomized Post
-          </Button>
-        </>
-      )}
 
       <div className="max-w-3xl w-full">
         <FileUploader

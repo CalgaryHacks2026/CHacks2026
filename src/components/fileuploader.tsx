@@ -18,15 +18,21 @@ import {
   CloudUploadIcon,
   CheckCircle2Icon,
   AlertTriangleIcon,
+  Loader2Icon,
 } from "lucide-react";
 import UploadForm from "./uploadForm";
+import { api } from "../../convex/_generated/api";
+import { useMutation } from "convex/react";
+import { Id } from "../../convex/_generated/dataModel";
 
-type UploadResult = { url: string };
+// Define a custom result type that includes storageId
+type CustomUploadResult = { url: string; storageId: Id<"_storage"> };
 
 export type UploaderValue = {
   file: File | null;
   url: string;
   kind: "image" | "audio" | "unknown";
+  storageId: Id<"_storage"> | null; // Added storageId
 };
 
 export default function FileUploader(props: {
@@ -38,6 +44,9 @@ export default function FileUploader(props: {
   const accept = props.accept ?? "image-audio";
   const maxFiles = props.maxFiles ?? 1;
   const maxSize = (props.maxSizeMb ?? 10) * 1024 * 1024;
+
+  // Get the mutation to generate upload URLs from Convex
+  const generateUploadUrl = useMutation(api.post.generate_upload_url);
 
   const validationAccept = React.useMemo(() => {
     if (accept === "image-audio") {
@@ -57,7 +66,7 @@ export default function FileUploader(props: {
     return undefined;
   }, [accept]);
 
-  const dz = useDropzone<UploadResult, string>({
+  const dz = useDropzone<CustomUploadResult, string>({ // Use CustomUploadResult here
     validation: {
       accept: validationAccept as any,
       maxFiles,
@@ -69,23 +78,44 @@ export default function FileUploader(props: {
 
     onDropFile: async (file) => {
       try {
-        const url = URL.createObjectURL(file);
-        await new Promise((r) => setTimeout(r, 250)); // fake upload delay
-        return { status: "success", result: { url } };
-      } catch {
-        return { status: "error", error: "Upload failed. Try again." };
+        // Step 1: Generate a short-lived upload URL from Convex
+        const postUrl = await generateUploadUrl();
+
+        // Step 2: Upload the file to the generated URL using fetch
+        const uploadResponse = await fetch(postUrl, {
+          method: "POST",
+          headers: { "Content-Type": file.type },
+          body: file,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error(`Upload failed: ${uploadResponse.statusText}`);
+        }
+
+        // Step 3: Parse the response to get the storageId
+        const { storageId } = await uploadResponse.json() as { storageId: Id<"_storage"> };
+
+        // Step 4: Create a preview URL and return both preview URL and storageId
+        const previewUrl = URL.createObjectURL(file);
+        return { status: "success", result: { url: previewUrl, storageId: storageId } };
+
+      } catch (error: any) {
+        console.error("Error in onDropFile:", error);
+        return { status: "error", error: error.message || "Upload failed. Try again." };
       }
     },
 
     onAllUploaded: () => {
+      // Ensure we are using the CustomUploadResult type for last.result
       const last = dz.fileStatuses[dz.fileStatuses.length - 1] as
-        | FileStatus<UploadResult, string>
+        | FileStatus<CustomUploadResult, string>
         | undefined;
 
       if (!last) return;
 
       const file = last.file;
-      const url = last.status === "success" ? last.result.url : "";
+      const url = last.status === "success" && last.result ? last.result.url : "";
+      const storageId = last.status === "success" && last.result ? last.result.storageId : null; // Get storageId
 
       const kind: UploaderValue["kind"] = file.type.startsWith("image/")
         ? "image"
@@ -93,17 +123,19 @@ export default function FileUploader(props: {
           ? "audio"
           : "unknown";
 
-      props.onChange({ file, url, kind });
+      // Pass the storageId to the onChange callback
+      props.onChange({ file, url, kind, storageId });
     },
 
     onRemoveFile: async () => {
-      props.onChange({ file: null, url: "", kind: "unknown" });
+      // Clear storageId as well when removing the file
+      props.onChange({ file: null, url: "", kind: "unknown", storageId: null });
     },
   });
 
   React.useEffect(() => {
     if (dz.fileStatuses.length === 0) {
-      props.onChange({ file: null, url: "", kind: "unknown" });
+      props.onChange({ file: null, url: "", kind: "unknown", storageId: null });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dz.fileStatuses.length]);
@@ -152,18 +184,23 @@ export default function FileUploader(props: {
           <DropzoneFileList>
             {dz.fileStatuses.length === 1 && (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {dz.fileStatuses.map((file) => {
-                  const f = file as FileStatus<UploadResult, string>;
-                  const isImg = f.file.type.startsWith("image/");
-                  const previewUrl = f.status === "success" ? f.result.url : "";
+                {dz.fileStatuses.map((fileStatus) => {
+                  // Cast to the correct type to access CustomUploadResult properties
+                  const fileStatusWithResult = fileStatus as FileStatus<CustomUploadResult, string>;
+                  const file = fileStatusWithResult.file;
+                  // Safely access result properties only if status is success
+                  const previewUrl = fileStatusWithResult.status === "success" && fileStatusWithResult.result ? fileStatusWithResult.result.url : "";
+                  const storageId = fileStatusWithResult.status === "success" && fileStatusWithResult.result ? fileStatusWithResult.result.storageId : null;
 
                   return (
-                    <DropzoneFileListItem key={file.id} file={file}>
+                    <DropzoneFileListItem key={fileStatus.id} file={fileStatus}>
                       <UploadForm
                         onCloseAction={() => {
                           document.getElementById("remove-file")?.click();
                         }}
                         previewUrl={previewUrl}
+                        image={fileStatusWithResult.file}
+                        storageId={storageId}
                       />
                       <DropzoneRemoveFile id="remove-file" className="hidden" />
                     </DropzoneFileListItem>

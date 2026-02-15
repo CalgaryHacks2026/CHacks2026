@@ -3,10 +3,23 @@ import { Doc } from "./_generated/dataModel";
 import { action, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+export const generate_upload_url = mutation({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
 export const get_posts = query({
   args: {},
   handler: async (ctx, args) => {
-    return await ctx.db.query("posts").collect();
+    const posts = await ctx.db.query("posts").collect();
+    return Promise.all(
+      posts.map(async (post) => ({
+        ...post,
+        url: post.storageId ? await ctx.storage.getUrl(post.storageId) : null,
+      })),
+    );
   },
 });
 
@@ -15,9 +28,9 @@ export const create_post = mutation({
     title: v.string(),
     description: v.string(),
     setOfUserTags: v.array(v.id("tags")),
-    contentUrl: v.optional(v.string()),
+    storageId: v.id("_storage"),
   },
-  handler: async (ctx, { title, description, setOfUserTags, contentUrl }) => {
+  handler: async (ctx, { title, description, setOfUserTags, storageId }) => {
     const now = Date.now();
     const identity = await ctx.auth.getUserIdentity();
 
@@ -43,7 +56,7 @@ export const create_post = mutation({
       updatedDate: now,
       tags: setOfUserTags,
       user: user._id,
-      contentUrl,
+      storageId,
     });
   },
 });
@@ -55,11 +68,11 @@ export const update_post = mutation({
     description: v.string(),
     setOfUserTags: v.array(v.id("tags")),
     userId: v.id("users"),
-    content_url: v.optional(v.string()),
+    storageId: v.optional(v.id("_storage")),
   },
   handler: async (
     ctx,
-    { _id, title, description, setOfUserTags, content_url },
+    { _id, title, description, setOfUserTags, storageId },
   ) => {
     const existing = await ctx.db.get(_id);
 
@@ -69,7 +82,7 @@ export const update_post = mutation({
       ...(title !== undefined ? { title } : {}),
       ...(description !== undefined ? { description } : {}),
       ...(setOfUserTags !== undefined ? { tags: setOfUserTags } : {}),
-      ...(content_url !== undefined ? { content_url } : {}),
+      ...(storageId !== undefined ? { storageId } : {}),
       updatedDate: Date.now(),
     });
     return _id;
@@ -95,7 +108,13 @@ export const search_posts = query({
       return scoreB - scoreA;
     });
 
-    return matching;
+    // Return posts with URLs
+    return Promise.all(
+      matching.map(async (post) => ({
+        ...post,
+        url: post.storageId ? await ctx.storage.getUrl(post.storageId) : null,
+      })),
+    );
   },
 });
 
@@ -119,7 +138,15 @@ export const get_post_for_user = query({
     }
 
     const posts = await ctx.db.query("posts").collect();
-    return posts.filter((post) => post.user === user._id);
+    const userPosts = posts.filter((post) => post.user === user._id);
+
+    // Return posts with URLs
+    return Promise.all(
+      userPosts.map(async (post) => ({
+        ...post,
+        url: post.storageId ? await ctx.storage.getUrl(post.storageId) : null,
+      })),
+    );
   },
 });
 
@@ -141,10 +168,20 @@ export const postsByWeightedTagsFromHttp = action({
     } as Record<string, number>;
 
     // Call the query from the action
-    const posts: Doc<"posts">[] = await ctx.runQuery(api.post.search_posts, {
+    const posts = await ctx.runQuery(api.post.search_posts, {
       query: args.query,
       tags,
     });
     return posts;
+  },
+});
+
+// Helper query to get a URL for a specific storage ID
+export const get_file_url = query({
+  args: {
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, { storageId }) => {
+    return await ctx.storage.getUrl(storageId);
   },
 });

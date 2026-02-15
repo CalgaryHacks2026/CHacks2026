@@ -9,7 +9,7 @@ export default defineSchema({
     updatedDate: v.number(),
     tags: v.array(v.id("tags")),
     user: v.id("users"),
-    contentUrl: v.optional(v.string()),
+    storageId: v.optional(v.id("_storage")),
   }),
   users: defineTable({
     name: v.string(),

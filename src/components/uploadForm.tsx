@@ -22,17 +22,25 @@ import {
   ComboboxValue,
 } from "./ui/combobox";
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
+import { Id } from "../../convex/_generated/dataModel";
 
 export default function UploadForm({
   onCloseAction,
   previewUrl,
+  image,
+  storageId // Added storageId prop
 }: {
   onCloseAction?: () => void;
   previewUrl: string;
+  image: File;
+  storageId: Id<"_storage"> | null; // Added storageId prop
 }) {
   const createTag = useMutation(api.tag.create_tag);
+  const createPost = useMutation(api.post.create_post);
   const availableTags = useQuery(api.tag.get_tags);
+  // generateUploadUrl is no longer needed here as storageId is passed down
+  // const generateUploadUrl = useMutation(api.post.generate_upload_url);
 
   const [postName, setPostName] = React.useState("");
   const [year, setYear] = React.useState(new Date().getFullYear());
@@ -40,6 +48,7 @@ export default function UploadForm({
   const [tagInput, setTagInput] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [aiTagsLoading, setAiTagsLoading] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   // AI-generated tags (will be populated by AI server call in useEffect)
   const [aiTags, setAiTags] = React.useState<string[]>([]);
@@ -119,9 +128,9 @@ export default function UploadForm({
     }
   };
 
-  const callAiServerForImageTags = async (tags: string[], imageUrl: string) => {
+  const callAiServerForImageTags = React.useCallback(async (tags: string[], imageUrl: string) => {
     setAiTagsLoading(true);
-    const response = await axios.post<string>("http://calgaryhacks2026-ai-ttmpvz-6e6d1f-142-179-227-74.traefik.me/image-to-tags", {
+    const response = await axios.post<string>("https://ch26-ai.alahdal.ca/image-to-tags", {
       tags: tags,
       image_url: imageUrl
     })
@@ -129,13 +138,66 @@ export default function UploadForm({
     const parsedTags = JSON.parse(sanitizedTags) as { tag: string, weight: number }[];
     setAiTags(parsedTags.map((tag) => tag.tag));
     setAiTagsLoading(false);
-  }
+  }, [availableTagNames, setAiTags, setAiTagsLoading]); // Dependencies for useCallback
 
+  // Fetch the file URL using the storageId.
+  // Call useQuery unconditionally. If storageId is null, pass undefined as args.
+  const fileUrl = useQuery(api.post.get_file_url, storageId ? { storageId } : "skip");
+
+  // Fetch AI tags when the image is uploaded and its URL is available.
+  // This effect runs when fileUrl, storageId, or availableTagNames change.
   useEffect(() => {
-    callAiServerForImageTags(availableTagNames, "https://http.cat/images/418.jpg")
-  }, []);
+    // Ensure we have all necessary data before calling the AI server:
+    // - storageId must be present.
+    // - fileUrl must be a valid string (not undefined, null, or loading).
+    // - availableTagNames must be fetched and not empty.
+    if (storageId && typeof fileUrl === 'string' && availableTagNames && availableTagNames.length > 0) {
+      console.log("Fetching AI tags for URL:", fileUrl);
+      callAiServerForImageTags(availableTagNames, fileUrl);
+    }
+  }, [fileUrl, storageId, availableTagNames, callAiServerForImageTags]); // Added callAiServerForImageTags to dependencies
 
-  const handleSubmit = async () => {};
+  const handleSubmit = async () => {
+    // Ensure we have the necessary data
+    if (!image || !storageId) { // Check for storageId prop
+      console.error("Missing image or storageId");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Step 1: Get the tag IDs for selected tags (both user tags and AI tags)
+      const allSelectedTags = [...new Set([...tags, ...aiTags])];
+      const tagIds: Id<"tags">[] = [];
+
+      for (const tagName of allSelectedTags) {
+        const existingTag = availableTags?.find((t) => t.name === tagName);
+        if (existingTag) {
+          tagIds.push(existingTag._id);
+        } else {
+          // Create the tag if it doesn't exist
+          const newTagId = await createTag({ name: tagName });
+          tagIds.push(newTagId);
+        }
+      }
+
+      // Step 2: Create the post with the storage ID
+      await createPost({
+        title: postName,
+        description: description,
+        setOfUserTags: tagIds,
+        storageId: storageId, // Use the storageId passed as a prop
+      });
+
+      // Close the form on success
+      onCloseAction?.();
+    } catch (error) {
+      console.error("Error creating post:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return createPortal(
     <div className="bg-background/65 backdrop-blur-md fixed top-0 left-0 w-screen h-screen flex flex-col justify-center items-center">
@@ -281,7 +343,11 @@ export default function UploadForm({
                 <Button
                   size="icon-lg"
                   variant="ghost"
-                  onClick={() => callAiServerForImageTags(availableTagNames, "https://http.dog/401.jpg")}
+                  onClick={() => {
+                    if (typeof fileUrl === 'string' && storageId && availableTagNames && availableTagNames.length > 0) {
+                      callAiServerForImageTags(availableTagNames, fileUrl)
+                    }
+                  }}
                   disabled={aiTagsLoading}
                 >
                   { aiTagsLoading ? <Loader2Icon className="animate-spin" /> : <SparklesIcon /> }
@@ -302,7 +368,7 @@ export default function UploadForm({
               />
             </div>
 
-            <Button size="lg" className="w-full">
+            <Button size="lg" className="w-full" onClick={handleSubmit}>
               Upload
             </Button>
           </div>
