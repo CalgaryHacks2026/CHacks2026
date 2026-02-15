@@ -26,7 +26,7 @@ export const create_post = mutation({
       tags: set_of_user_tags,
       user: userId,
     });
-  },
+  }
 });
 
 
