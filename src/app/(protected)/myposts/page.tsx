@@ -53,7 +53,6 @@ export default function MyPosts() {
           }}
         />
       </div>
-      {mediaFile && mediaUrl && mediaType && <UploadForm />}
 
       <section className="mt-12 w-full max-w-6xl px-4">
         <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5">

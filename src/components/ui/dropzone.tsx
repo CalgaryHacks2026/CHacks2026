@@ -501,17 +501,7 @@ const DropzoneFileListItem = React.forwardRef<
         messageId,
       }}
     >
-      <li
-        ref={ref}
-        aria-label="dropzone-file-list-item"
-        aria-describedby={isInvalid ? messageId : undefined}
-        className={cn(
-          "flex flex-col justify-center gap-2 rounded-md bg-muted/40 px-4 py-2",
-          className,
-        )}
-      >
-        {props.children}
-      </li>
+      {props.children}
     </DropzoneFileListContext.Provider>
   );
 });

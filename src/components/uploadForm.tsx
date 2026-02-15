@@ -4,6 +4,7 @@ import * as React from "react";
 import FileUploader from "./fileuploader";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { createPortal } from "react-dom";
 
 type UploaderValue = {
   file: File | null;
@@ -55,48 +56,39 @@ export default function UploadForm({
     // });
   };
 
-  return (
+  return createPortal(
+    <div className="bg-background/65 backdrop-blur-md fixed top-0 left-0 w-screen h-screen flex flex-col justify-center items-center">
     <div className="w-full max-w-2xl mx-auto">
-      <div className="rounded-3xl border border-zinc-200 bg-white p-8 shadow-lg">
+      <div className="rounded-3xl border bg-card p-8 shadow-lg">
         {/* Header */}
         <div className="mb-2 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-zinc-900">Add New Post</h1>
-            <p className="mt-1 text-lg text-zinc-600">
+            <h1 className="text-3xl font-bold">Add New Post</h1>
+            <p className="mt-1 text-lg">
               Upload media + add name, year, tags, and a description.
             </p>
           </div>
-
-          {onCloseAction && (
-            <button
-              type="button"
-              onClick={onCloseAction}
-              className="whitespace-nowrap rounded-full border border-zinc-200 px-3 py-1 text-sm text-zinc-700 hover:bg-zinc-50"
-            >
-              Close
-            </button>
-          )}
         </div>
 
         {/* ✅ either remove this, or close it properly */}
-        <p className="mb-8 text-lg text-zinc-600">
+        <p className="mb-8 text-lg">
           {/* optional helper text here, or just leave it empty */}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Media Upload */}
           <div>
-            <label className="mb-2 block text-lg font-semibold text-zinc-900">
+            <label className="mb-2 block text-lg font-semibold">
               Media (photo or audio)
             </label>
-            <p className="mb-4 text-sm text-zinc-600">
+            <p className="mb-4 text-sm text-zinc-300">
               Photos: .jpeg/.jpg/.png • Audio: .mp3/.wav
             </p>
           </div>
 
           {/* Post Name */}
           <div>
-            <label className="mb-2 block text-lg font-semibold text-zinc-900">
+            <label className="mb-2 block text-lg font-semibold">
               Post name
             </label>
             <Input
@@ -104,13 +96,13 @@ export default function UploadForm({
               value={postName}
               onChange={(e) => setPostName(e.target.value)}
               placeholder="e.g. Summer Hike"
-              className="h-12 border-zinc-200 bg-white text-base focus:border-blue-400"
+              className="h-12 text-base focus:border-blue-400"
             />
           </div>
 
           {/* Year */}
           <div>
-            <label className="mb-2 block text-lg font-semibold text-zinc-900">
+            <label className="mb-2 block text-lg font-semibold">
               Year
             </label>
             <Input
@@ -119,13 +111,13 @@ export default function UploadForm({
               onChange={(e) => setYear(Number(e.target.value))}
               min={1900}
               max={3000}
-              className="h-12 border-zinc-200 bg-white text-base focus:border-blue-400"
+              className="h-12 text-base focus:border-blue-400"
             />
           </div>
 
           {/* Tags */}
           <div>
-            <label className="mb-2 block text-lg font-semibold text-zinc-900">
+            <label className="mb-2 block text-lg font-semibold">
               Tags
             </label>
 
@@ -136,7 +128,7 @@ export default function UploadForm({
                     key={tag}
                     type="button"
                     onClick={() => handleRemoveTag(tag)}
-                    className="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 text-sm text-zinc-700 transition hover:bg-zinc-200"
+                    className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm transition"
                     title="Click to remove"
                   >
                     #{tag} <span className="text-xs">×</span>
@@ -151,20 +143,20 @@ export default function UploadForm({
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={handleTagKeyDown}
               placeholder="Type a tag and press Enter (or comma)"
-              className="h-12 border-zinc-200 bg-white text-base focus:border-blue-400"
+              className="h-12 text-base focus:border-blue-400"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="mb-2 block text-lg font-semibold text-zinc-900">
+            <label className="mb-2 block text-lg font-semibold">
               Description
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Write a short description..."
-              className="min-h-[140px] w-full resize-none rounded-xl border border-zinc-200 bg-white px-4 py-3 text-base text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+              className="min-h-[140px] w-full resize-none rounded-xl border px-4 py-3 text-base outline-none transition focus:ring-4 "
             />
           </div>
 
@@ -183,6 +175,9 @@ export default function UploadForm({
         </button>*/}
         </form>
       </div>
-    </div>
+      </div>
+    </div>,
+
+    document.body
   );
 }

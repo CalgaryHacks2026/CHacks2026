@@ -7,10 +7,7 @@ import {
   DropzoneFileList,
   DropzoneFileListItem,
   DropzoneMessage,
-  DropzoneRemoveFile,
-  DropzoneRetryFile,
   DropzoneTrigger,
-  InfiniteProgress,
   useDropzone,
   type FileStatus,
 } from "~/components/ui/dropzone";
@@ -18,12 +15,10 @@ import {
 import { cn } from "~/lib/utils";
 import {
   CloudUploadIcon,
-  FileIcon,
-  RotateCwIcon,
-  Trash2Icon,
   CheckCircle2Icon,
   AlertTriangleIcon,
 } from "lucide-react";
+import UploadForm from "./uploadForm";
 
 type UploadResult = { url: string };
 
@@ -124,7 +119,9 @@ export default function FileUploader(props: {
             dz.isInvalid && "border-red-500/40",
           )}
           onClick={() => {
-            document.getElementById("dz-trigger")?.click();
+            if (dz.fileStatuses.length === 0) {
+              document.getElementById("dz-trigger")?.click();
+            }
           }}
         >
           <div className="flex flex-col items-center text-center">
@@ -152,13 +149,7 @@ export default function FileUploader(props: {
             <DropzoneMessage className="mt-3 text-red-300" />
           </div>
           <DropzoneFileList>
-            {/* Thumbnails */}
             {dz.fileStatuses.length > 0 && (
-              <div className="mt-4">
-                <div className="mb-2 text-sm font-medium text-zinc-200">
-                  Selected
-                </div>
-
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {dz.fileStatuses.map((file) => {
                     const f = file as FileStatus<UploadResult, string>;
@@ -168,55 +159,10 @@ export default function FileUploader(props: {
 
                     return (
                       <DropzoneFileListItem key={file.id} file={file}>
-                        <div
-                          key={f.id}
-                          className="relative overflow-hidden rounded-xl bg-white/5"
-                        >
-                          <div className="aspect-square w-full">
-                            {isImg && previewUrl ? (
-                              <img
-                                src={previewUrl}
-                                alt={f.fileName}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center">
-                                <FileIcon className="h-6 w-6 text-zinc-300" />
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-black/55 p-2">
-                            <div className="min-w-0 truncate text-xs text-zinc-200">
-                              {f.fileName}
-                            </div>
-
-                            <div className="flex items-center gap-1">
-                              {f.status === "error" && (
-                                <DropzoneRetryFile title="Retry">
-                                  <RotateCwIcon className="h-4 w-4 text-zinc-200" />
-                                </DropzoneRetryFile>
-                              )}
-                              <DropzoneRemoveFile title="Remove">
-                                <Trash2Icon className="h-4 w-4 text-zinc-200" />
-                              </DropzoneRemoveFile>
-                            </div>
-                          </div>
-
-                          <div className="px-2 pb-2 pt-2">
-                            <div className="flex items-center justify-between">
-                              <StatusPill status={f.status} />
-                            </div>
-                            <InfiniteProgress
-                              status={f.status}
-                              className="mt-2"
-                            />
-                          </div>
-                        </div>
+                        <UploadForm />
                       </DropzoneFileListItem>
                     );
                   })}
-                </div>
               </div>
             )}
           </DropzoneFileList>
