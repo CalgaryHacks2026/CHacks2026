@@ -10,19 +10,6 @@ export const generate_upload_url = mutation({
   },
 });
 
-export const get_posts = query({
-  args: {},
-  handler: async (ctx, args) => {
-    const posts = await ctx.db.query("posts").collect();
-    return Promise.all(
-      posts.map(async (post) => ({
-        ...post,
-        url: post.storageId ? await ctx.storage.getUrl(post.storageId) : null,
-      })),
-    );
-  },
-});
-
 export const create_post = mutation({
   args: {
     title: v.string(),
@@ -92,25 +79,40 @@ export const update_post = mutation({
   },
 });
 
-export const search_posts = query({
+export const search_posts = mutation({
   args: {
     query: v.string(),
-    tags: v.record(v.id("tags"), v.number()),
-    year: v.optional(v.number()), // ✅ add (optional)
+    year: v.number(),
+    tags: v.record(v.string(), v.number()),
   },
-  handler: async (ctx, { query, tags, year }) => {
-    const weights = tags;
+  handler: async (ctx, { query, year, tags }) => {
+    // tags comes in as { tagName: weight, ... }
+    // We need to convert tag names to tag IDs
+    const tagNames = Object.keys(tags);
+
+    // Look up tag IDs from tag names
+    const tagIdToWeight: Record<string, number> = {};
+    for (const tagName of tagNames) {
+      const tag = await ctx.db
+        .query("tags")
+        .withIndex("by_name", (q) => q.eq("name", tagName))
+        .unique();
+      if (tag) {
+        tagIdToWeight[tag._id] = tags[tagName];
+      }
+    }
+
     const allPosts = await ctx.db.query("posts").collect();
 
-    const matching = allPosts.filter((post) => {
-      const tagMatch = post.tags.some((tag) => weights[tag] !== undefined);
-      const yearMatch = year === undefined || post.year === year; // ✅ add
-      return tagMatch && yearMatch;
-    });
+    // Filter posts that have at least one matching tag
+    const matching = allPosts.filter((post) =>
+      post.tags.some((tagId) => tagIdToWeight[tagId] !== undefined),
+    );
 
+    // Sort by highest weight among a post's tags
     matching.sort((a, b) => {
-      const scoreA = Math.max(...a.tags.map((t) => weights[t] ?? 0), 0);
-      const scoreB = Math.max(...b.tags.map((t) => weights[t] ?? 0), 0);
+      const scoreA = Math.max(...a.tags.map((t) => tagIdToWeight[t] ?? 0), 0);
+      const scoreB = Math.max(...b.tags.map((t) => tagIdToWeight[t] ?? 0), 0);
       return scoreB - scoreA;
     });
 

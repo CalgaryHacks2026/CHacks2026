@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { ContentItem } from "~/components/content-item";
 import { Input } from "~/components/ui/input";
@@ -33,22 +33,56 @@ const SUGGESTED = [
 
 export default function Home() {
   const [query, setQuery] = useState("");
-  const posts = useQuery(api.post.get_posts, {});
+  const searchPosts = useMutation(api.post.search_posts);
   const allTags = useQuery(api.tag.get_tags, {});
+  const [aiProvidedTags, setAiProvidedTags] = useState<Record<string, number>>({});
   const [year, setYear] = useState(2000);
+  const [isAiSearchingLoading, setIsAiSearchingLoading] = useState(false);
   const sectionRef = useRef<HTMLElement | null>(null);
 
   const getAiTagsFromServer = async () => {
-    const {status, data} = await axios.post("https://ch26-ai.alahdal.ca/search-tags", {
-      text: query,
-      tags: allTags?.map((tag) => tag.name),
-      year
-    });
-
-    if (status !== 200) {
-      // throw error and cancel loading
+    setIsAiSearchingLoading(true);
+    try {
+      const {status, data} = await axios.post<string>("https://ch26-ai.alahdal.ca/search-tags", {
+        text: query,
+        tags: allTags?.map((tag) => tag.name),
+        year
+      });
+      if (status !== 200) {
+        // throw error and cancel loading
+        throw new Error("Error fetching AI tags");
+      }
+      const sanitizedData = data.replaceAll("```json", "").replaceAll("```", "");
+      const parsedData = JSON.parse(sanitizedData);
+      const tempData = {} as Record<string, number>;
+      parsedData.forEach((d: {tag: string, weight: number}) => {
+        tempData[d.tag] = d.weight;
+      });
+      setAiProvidedTags(tempData);
+      console.log(parsedData);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsAiSearchingLoading(false);
     }
   }
+
+  const handleMutate = async () => {
+    const posts = await searchPosts({
+      query,
+      tags: aiProvidedTags,
+      year
+    });
+    console.log("posties", posts);
+  }
+
+  useEffect(() => {
+    handleMutate();
+  }, [aiProvidedTags]);
+
+  useEffect(() => {
+    console.log(aiProvidedTags);
+  }, [aiProvidedTags]);
 
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
@@ -87,12 +121,13 @@ export default function Home() {
               <Button
                 className="h-12"
                 variant="outline"
-                onClick={() => {
+                onClick={async () => {
                   sectionRef.current?.scrollIntoView({
                     behavior: "smooth",
                     block: "start",
                   });
                   // initiate search onto ai server to grab additional tags
+                  await getAiTagsFromServer();
                 }}
               >
                 <SearchIcon /> Search
