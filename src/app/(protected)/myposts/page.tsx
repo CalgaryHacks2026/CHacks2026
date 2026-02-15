@@ -225,7 +225,7 @@ export default function MyPosts() {
     // setActiveId(newPost.id);
 
     // IMPORTANT: do NOT revoke the URL here because the post is using it.
-    // Later, when you upload to storage and replace mediaUrl with a real URL,
+    // Later, when you upload to storage and replace  with a real URL,
     // THEN you can revoke the old objectURL safely.
 
     // reset only the non-media fields but keep modal close
@@ -653,7 +653,6 @@ export default function MyPosts() {
     </div>
   ) : null}
 </div>
-
                   </div>
 
                   {/* Title */}
