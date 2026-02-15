@@ -58,7 +58,7 @@ export default function Home() {
               className="h-11 w-full rounded-xl bg-white px-4 text-sm outline-none placeholder:text-zinc-400"
             />
 
-            <button
+            {/* <button
               type="button"
               className="h-11 whitespace-nowrap rounded-xl bg-gradient-to-r from-blue-600 via-pink-600 to-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
               onClick={() => {
@@ -67,7 +67,18 @@ export default function Home() {
               }}
             >
               Search
+            </button> */}
+            <button
+              type="button"
+              className="h-11 whitespace-nowrap rounded-xl bg-gradient-to-r from-blue-600 via-pink-600 to-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-95 cursor-pointer"
+              onClick={() => {
+                // For now just keep it simple—later this can route or trigger a search.
+                // Example: router.push(`/search?tag=${encodeURIComponent(query)}`)
+              }}
+            >
+              Search
             </button>
+
           </div>
 
           {/* Suggested tags */}

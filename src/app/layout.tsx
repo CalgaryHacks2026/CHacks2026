@@ -36,25 +36,31 @@ export default function RootLayout({
       <ConvexClientProvider>
         <html lang="en">
           <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-              <header className="flex justify-end items-center p-4 gap-4 h-16">
-                {/* Show the sign-in and sign-up buttons when the user is signed out */}
-                <SignedOut>
-                  <SignInButton />
-                  <SignUpButton>
-                    <button className="bg-[#6c47ff] text-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer">
-                      Sign Up
-                    </button>
-                  </SignUpButton>
-                </SignedOut>
-                {/* Show the user button when the user is signed in */}
-                <SignedIn>
-                  <UserButton />
-                </SignedIn>
-              </header>
-              {children}
-            </body>
-          </html>
-        </ConvexClientProvider>
-      </ClerkProvider>
-      )
+            <header className="flex justify-end items-center p-4 gap-4 h-16">
+              {/* Show the sign-in and sign-up buttons when the user is signed out */}
+              <SignedOut>
+                <SignInButton>
+                  <button className="text-sm font-medium hover:underline cursor-pointer">
+                    Sign In
+                  </button>
+                </SignInButton>
+
+                <SignUpButton>
+                  <button className="bg-[#6c47ff] text-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer hover:opacity-95 transition">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </SignedOut>
+
+              {/* Show the user button when the user is signed in */}
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </header>
+            {children}
+          </body>
+        </html>
+      </ConvexClientProvider>
+    </ClerkProvider>
+  )
 }
