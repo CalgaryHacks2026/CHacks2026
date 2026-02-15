@@ -187,7 +187,9 @@ export default function UploadForm({
         title: postName,
         description: description,
         setOfUserTags: tagIds,
-        storageId: storageId, // Use the storageId passed as a prop
+        storageId: storageId,
+        year: year // ✅ add this
+ // Use the storageId passed as a prop
       });
 
       // Close the form on success

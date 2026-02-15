@@ -29,8 +29,10 @@ export const create_post = mutation({
     description: v.string(),
     setOfUserTags: v.array(v.id("tags")),
     storageId: v.id("_storage"),
+    year: v.number(), // ✅ add
+
   },
-  handler: async (ctx, { title, description, setOfUserTags, storageId }) => {
+  handler: async (ctx, { title, description, setOfUserTags, storageId, year }) => {
     const now = Date.now();
     const identity = await ctx.auth.getUserIdentity();
 
@@ -57,6 +59,7 @@ export const create_post = mutation({
       tags: setOfUserTags,
       user: user._id,
       storageId,
+      year
     });
   },
 });
