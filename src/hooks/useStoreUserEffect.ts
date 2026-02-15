@@ -32,6 +32,15 @@ export function useStoreUserEffect() {
     // a different identity
   }, [isAuthenticated, storeUser, user?.id]);
   // Combine the local state with the state from context
+
+  // EXCLAIM:
+  // sets all tags on initial load. this is just for demo purposes
+  const seedTags = useMutation(api.tag.seed_tags);
+
+  useEffect(() => {
+    seedTags();
+  }, [userId, seedTags]);
+
   return {
     isLoading: isLoading || (isAuthenticated && userId === null),
     isAuthenticated: isAuthenticated && userId !== null,
