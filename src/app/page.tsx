@@ -76,7 +76,7 @@ export default function Home() {
   const getAiTagsFromServer = async () => {
     setIsAiSearchingLoading(true);
     try {
-      const {status, data} = await axios.post<string>("https://ch26-ai.alahdal.ca/search-tags", {
+      const { status, data } = await axios.post<string>("https://ch26-ai.alahdal.ca/search-tags", {
         text: query,
         tags: allTags?.map((tag) => tag.name),
         year
@@ -88,7 +88,7 @@ export default function Home() {
       const sanitizedData = data.replaceAll("```json", "").replaceAll("```", "");
       const parsedData = JSON.parse(sanitizedData);
       const tempData = {} as Record<string, number>;
-      parsedData.forEach((d: {tag: string, weight: number}) => {
+      parsedData.forEach((d: { tag: string, weight: number }) => {
         tempData[d.tag] = d.weight;
       });
       setAiProvidedTags(tempData);
@@ -198,7 +198,7 @@ export default function Home() {
           {/* Suggested tags */}
         </div>
         {/*Section for loading posts area - Masonry Grid*/}
-        <section ref={sectionRef} className="mt-12 w-full max-w-6xl px-4 scroll-mt-[70px]">
+        <section ref={sectionRef} className="mt-12 w-full max-w-6xl px-4 scroll-mt-[330px]">
           <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 group">
             {isAiSearchingLoading || !hasSearched ? (
               Array.from({ length: 32 }).map((_, i) => {
