@@ -137,10 +137,10 @@ export default function Home() {
         <div className="absolute -bottom-48 -right-24 h-96 w-96 rounded-full bg-gradient-to-tl from-orange-300/25 to-amber-300/25 blur-3xl" />
       </div>
 
-      <main className="relative z-10 mx-auto flex w-full flex-col items-center px-6 pt-16 text-center">
+      <main className="relative z-10 mx-auto flex w-full flex-col items-center px-6 pt-16 pb-24 text-center">
         {/* Search */}
         <div className="mt-8 w-full justify-center items-center flex flex-col">
-          <div className="max-w-3xl w-full flex flex-col items-center gap-2 h-[calc(76vh)]">
+          <div className="max-w-3xl w-full flex flex-col items-center gap-2 min-h-[calc(76vh)]">
             <Image
               src="/memora_logo_lg.png"
               alt="Memora Logo"
@@ -198,7 +198,7 @@ export default function Home() {
           {/* Suggested tags */}
         </div>
         {/*Section for loading posts area - Masonry Grid*/}
-        <section ref={sectionRef} className="mt-12 w-full max-w-6xl px-4 scroll-mt-70">
+        <section ref={sectionRef} className="mt-12 w-full max-w-6xl px-4 scroll-mt-[70px]">
           <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 group">
             {posts.length >= 1 ? (
               posts.map((post, i) => {
