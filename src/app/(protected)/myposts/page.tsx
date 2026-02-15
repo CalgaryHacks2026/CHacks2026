@@ -371,29 +371,34 @@ export default function MyPosts() {
   </button>
       </div>
       
-      <div className="mx-auto w-full max-w-6xl">
-        <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          {/* Left: Post cards */}
-          <section className="flex flex-wrap">
-            {posts.map(p => <>
-              <button className="bg-card min-h-96 min-w-64 border hover:shadow-2xl hover:scale-125 transition-all duration-300 ease-out cursor-pointer hover:before:opacity-65 relative hover:before:absolute hover:before:top-0 hover:before:left-0 hover:before:w-full hover:before:h-full z-0 hover:z-50 hover:before:bg-black"
-                style={{
-                  backgroundImage: `url(${p.mediaUrl})`,
-backgroundSize: "cover",
-backgroundPosition: "center",
-                }}
-                onClick={() => openEditModal(p)}
+   <div className="mx-auto w-full max-w-6xl">
+  {/* Center the whole grid */}
+  <div className="mt-8 flex justify-center">
+    {/* Center the items inside + add spacing */}
+    <section className="flex flex-wrap justify-center gap-6">
+      {posts.map((p) => (
+        <button
+          key={p.id}
+          className="bg-card min-h-96 min-w-64 border hover:shadow-2xl hover:scale-125 transition-all duration-300 ease-out cursor-pointer hover:before:opacity-65 relative hover:before:absolute hover:before:top-0 hover:before:left-0 hover:before:w-full hover:before:h-full z-0 hover:z-50 hover:before:bg-black"
+          style={{
+            backgroundImage: `url(${p.mediaUrl})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            // make tiles bigger without touching your hover/effect classes
+            minWidth: "22rem",
+            minHeight: "26rem",
+          }}
+          onClick={() => openEditModal(p)}
+        />
+      ))}
+    </section>
+  </div>
 
-              >
+  {activeId && (
+    <div className="fixed bg-black/55 backdrop-blur-lg z-100 top-0 left-0 w-screen h-screen" />
+  )}
+</div>
 
-              </button>
-            </>)}
-          </section>
-          {activeId && <div className="fixed bg-black/55 backdrop-blur-lg z-100 top-0 left-0 w-screen h-screen">
-
-            </div>}
-        </div>
-      </div>
 
       {/* Modal */}
       {open ? (
