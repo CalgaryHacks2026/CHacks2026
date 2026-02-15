@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 const SPECIFC_LOGO_URL =
   "https://raw.githubusercontent.com/CalgaryHacks2026/Image_Hosting/refs/heads/main/93f59d4e-c49f-40b1-8e67-90f8c75ffb64.png?token=GHSAT0AAAAAADSN554THCXE54TRMPSQUQNY2MRDIBQ";
@@ -10,6 +12,8 @@ const SUGGESTED = ["cars", "chairs", "bikes"] as const;
 
 export default function Home() {
   const [query, setQuery] = useState("");
+  const posts = useQuery(api.post.getPosts, {})
+
 
   return (
     <div className="min-h-screen bg-white text-zinc-900">
@@ -96,6 +100,13 @@ export default function Home() {
             ))}
           </div>
         </div>
+
+        {posts?.map((post) => (
+          <div key={post._id} className="mt-8">
+            <p>Title: {post.title}</p>
+            <p>Description: {post.description}</p>
+          </div>
+        ))}
 
         <p className="mt-8 max-w-xl text-sm leading-6 text-zinc-500">
           Tip: tags can be anything — people, places, projects, vibes.
